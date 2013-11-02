@@ -1,0 +1,130 @@
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+	<div id="patrolSettings">
+		<h2>{{ name }} <span class="subtle">V{{ version }}</span></h2>
+		<p>
+			{{ description }}
+		</p>
+		<div class="patrolSection">
+			<h3 class="ico maintenance">Maintenance Settings</h3>
+			<input type="hidden" name="return" value="{{ cpUrl("settings/plugins/patrol") }}">
+			{{
+				forms.checkboxField({
+					id:				"maintenanceMode",
+					name:			"maintenanceMode",
+					label:			"Enable Maintenance Mode"|t,
+					instructions:	"Redirects all unauthorized IP addresses to your maintenance URL."|t,
+					value:			1,
+					checked:		settings.maintenanceMode,
+					first:			true,
+					autofocus:		true,
+					errors:			""
+				})
+			}}
+			{{
+				forms.textField({
+					id:				"maintenanceUrl",
+					name:			"maintenanceUrl",
+					label:			"Maintenance URL"|t,
+					placeholder:	"/maintenance.html",
+					instructions:	"The URL that users should be redirected to if maintenance mode is enabled."|t,
+					value:			settings.maintenanceUrl,
+					errors:			""
+				})
+			}}
+			{{
+				forms.textareaField({
+					id:				"authorizedIps",
+					name:			"authorizedIps",
+					rows:			6,
+					class:			"code",
+					label:			"Authorized IP Addresses"|t,
+					placeholder:	"127.0.0.1",
+					instructions:	"Add one address per line&hellip; to allow IP ranges just use the lowest IP in the range and leave out the incrementing bits."|t,
+					value:			settings.authorizedIps,
+					errors:			""
+				})
+			}}
+			<input type="hidden" id="requestingIp" name="requestingIp" value="{{ requestingIp }}"/>
+			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Authorize Me">Authorize Me</a>
+		</div>
+
+		<div class="patrolSection">
+			<h3 class="ico security">Security Settings</h3>
+			{{
+				forms.checkboxField({
+					id:				"forceSsl",
+					name:			"forceSsl",
+					label:			"Enable Secured Connections"|t,
+					instructions:	"Forces connections over <strong>HTTPS</strong> on restricted areas."|t,
+					value:			1,
+					checked:		settings.forceSsl,
+					errors:			""
+				})
+			}}
+			{{
+				forms.textareaField({
+					id:				"restrictedAreas",
+					name:			"restrictedAreas",
+					rows:			6,
+					class:			"code",
+					label:			"Restricted Areas"|t,
+					placeholder:	"/members",
+					instructions:	"Add one URL/Section per line where <strong>HTTPS</strong> should be enforced."|t,
+					value:			settings.restrictedAreas,
+					errors:			""
+				})
+			}}
+			<input type="hidden" id="cpRule" name="cpRule" value="/{cpTrigger}"/>
+			<a href="#" id="addCpRule" class="btn icon add {{ hasCpRule ? 'disabled' : '' }}" title="Secure The CP">Secure The CP</a>
+		</div>
+
+		<div class="patrolSection">
+			<h3 class="ico settings">Plugin Settings</h3>
+			{{
+				forms.checkboxField({
+					id:				"enableCpTab",
+					name:			"enableCpTab",
+					label:			"Enable CP Tab"|t,
+					instructions:	"Toggles display of the <strong>"~name~"</strong> tab on the main menu atop."|t,
+					value:			1,
+					checked:		settings.enableCpTab,
+					errors:			""
+				})
+			}}
+			{{
+				forms.textField({
+					id:				"pluginAlias",
+					name:			"pluginAlias",
+					label:			"Plugin Alias"|t,
+					instructions:	"You can change the name of this plugin to something easier for you to remember and identify."|t,
+					value:			name,
+					errors:			""
+				})
+			}}
+
+			<a class="btn" href="{{ exportUrl }}" title="Export Settings">Export Settings</a>
+			<a id="importSettingsButton" class="btn" href="#" title="Import Settings">Import Settings</a>
+		</div>
+
+		<div class="patrolSection hidden" id="importSection">
+			<div>
+				<input type="file" id="patrolFile" name="patrolFile">
+				<br><br>
+				<a id="runImportSettings" href="#" class="btn submit">Run Import</a>
+				<a id="cancelImportButton" href="#" class="btn icon delete">Cancel</a>
+			</div>
+			<p class="notice">The uploaded file should be <strong>.json</strong> and will replace your current settings</p>
+		</div>
+
+		<div class="patrolSection credits">
+			<p>
+				&copy; {{ "now" | date("Y") }}
+				<strong>Patrol <span class="subtle">({{ status }})</span></strong>
+				<em>by</em>
+				<a href="http://twitter.com/selvinortiz" title="@selvinortiz" target="_blank">Selvin Ortiz</a>
+			</p>
+		</div>
+	</div>
+{% endblock %}
