@@ -101,7 +101,7 @@ class PatrolPlugin extends BasePlugin
 		return craft()->templates->render('patrol/_settings',
 			array(
 				'name'			=> $this->getName(),
-				'status'		=> $settings->maintenanceMode || $settings->forceSsl ? "Watching" : "Off Duty",
+				'status'		=> $settings->maintenanceMode || $settings->forceSsl ? 'Watching' : 'Off Duty',
 				'version'		=> $this->getVersion(),
 				'description'	=> $this->getDescription(),
 				'settings'		=> $this->getSettings(true),
