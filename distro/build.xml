@@ -35,7 +35,7 @@
 
     <target name="distro">
         <echo msg="Preparing distro..." />
-        <zip destfile="./patrol.${pluginVersion}.zip">
+        <zip destfile="../../patrol.${pluginVersion}.zip">
             <fileset dir="../../">
                 <include name="patrol/" />
                 <exclude name="patrol/distro/" />

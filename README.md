@@ -5,7 +5,6 @@ Patrol aims to improve deployment workflow and security for sites built with [Cr
 
 ## Features
 
----
 ### Maintenance
 Allows you to display a splash page to let users know that your site is **down for maintenance** while giving authorized users full access to the front-end and CP.
 
@@ -24,7 +23,7 @@ Lastly, Patrol allows you to enable/disable its **CP tab** and give it an **alia
 ![Plugin Settings](etc/settings.png)
 
 ## Tips
-1. To authorize services such as beanstalk that use an **IP range** rather than a single known IP, you can do the following...
+1. To authorize services such as beanstalk you can do the following...
 	- Find beanstalk/service IP range: `50.31.189.108 – 50.31.189.122`
 	- Add a partial IP to the authorized list: `50.31.189.1 or 50.31.189.1**`
 2. To force SSL on the CP, just click on the button provided or at `/{cpTrigger}` to the secure section list.
