@@ -16,6 +16,6 @@ Additionally, settings **export/import** _(JSON)_ functionality is available so 
 ![Maintenance Mode](etc/settings.png)
 
 ## NOTES
-1. The CP is accessible even if **maintenance mode** is turned on so that you can log in and add your _IP_ to get authorized if you aren't already.
-2. Patrol will not perform any of its tasks if **devMode** is on, if you want to test locally, you can turn **devMode** off.
+1. The CP is accessible even if **maintenance mode** is turned on to avoid admin lockouts.
+2. Patrol will og _off duty_ if **devMode** is on regardless of its settings.
 

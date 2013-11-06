@@ -58,7 +58,7 @@ class PatrolPlugin extends BasePlugin
 	}
 
 	/**
-	 * Extended version of getSettings() to handle settings prep for the template
+	 * Extends getSettings() to handle prep for the template use
 	 *
 	 * @param	bool	$templateReady	Whether or not settings should be prepared for template use
 	 *
