@@ -1,9 +1,10 @@
 ## Patrol 0.8.0
-Patrol aims to improve deployment workflow and security for sites built with [Craft](http://buildwithcraft.com)
-
 ![Patrol](etc/patrol.png)
 
 ## TL;DR
+Patrol aims to improve deployment workflow and security for sites built with [Craft](http://buildwithcraft.com)
+
+## Description
 **Maintenance:** Allows you to display a splash page to let users know that your site is **down for maintenance** while giving authorized users full access to the front-end and CP.
 
 ![Maintenance Mode](etc/maintenance.png)
@@ -17,6 +18,6 @@ Additionally, settings **export/import** _(JSON)_ functionality is available so 
 
 ![Maintenance Mode](etc/settings.png)
 
-## NOTES
+## Notes
 1. The CP is accessible even if **maintenance mode** is turned on to avoid admin lockouts.
 2. Patrol will og _off duty_ if **devMode** is on regardless of its settings.
