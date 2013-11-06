@@ -4,6 +4,16 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="PHP">
+        <CLASSES>
+          <root url="file://C:/www/selv.app/selv/craft" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file://C:/www/selv.app/selv/craft" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>
 

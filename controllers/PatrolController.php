@@ -33,7 +33,12 @@ class PatrolController extends BaseController
 			header('Content-type: application/json');
 			header('Pragma: no-cache');
 
-			echo craft()->patrol->jsonPrettify($json);
+			echo craft()->patrol->getHelper()->jsonPrettify($json);
+		}
+		else
+		{
+			craft()->userSession->setError('Unable to export settings to JSON');
+			$this->redirectToPatrol();
 		}
 
 		craft()->end();
@@ -64,8 +69,6 @@ class PatrolController extends BaseController
 
 	public function redirectToPatrol()
 	{
-		// $url = sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger'));
-
 		$this->redirect('settings/plugins/patrol');
 	}
 }

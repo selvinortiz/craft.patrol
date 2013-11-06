@@ -3,16 +3,55 @@ namespace Craft;
 
 class PatrolService extends BaseApplicationComponent
 {
-	protected $helper;
-	protected $warnings;
-	protected $dynamicParams;
+	protected $helper			= null;
+	protected $warnings			= array();
+	protected $dynamicParams	= array();
 	protected $exportFileName	= 'patrol.json';
 	protected $importFieldName	= 'patrolFile';
 
-	public function watch($settings)
+	/**
+	 * Kickstart Patrol if devMode is turned off
+	 *
+	 * @param Model $settings
+	 */
+	public function watch(Model $settings)
 	{
-		$this->protect($settings);
-		$this->restrict($settings);
+		if (!$this->getDevMode())
+		{
+			$this->protect($settings);
+			$this->restrict($settings);
+		}
+	}
+
+	/**
+	 * Prepares plugin settings before saving to db
+	 *
+	 * @param array $settings
+	 * @return array
+	 */
+	public function prepare(array $settings=array())
+	{
+		$authorizedIps		= $this->get('authorizedIps', $settings);
+		$restrictedAreas	= $this->get('restrictedAreas', $settings);
+
+		if ($authorizedIps)
+		{
+			$authorizedIps = $this->parseIps($authorizedIps);
+
+			$settings['authorizedIps'] = empty($authorizedIps) ? '' : $authorizedIps;
+		}
+
+		if ($restrictedAreas)
+		{
+			$restrictedAreas = $this->parseAreas($restrictedAreas);
+
+			$settings['restrictedAreas'] = empty($restrictedAreas) ? '' : $restrictedAreas;
+		}
+
+		if (empty($this->warnings))
+		{
+			return $settings;
+		}
 	}
 
 	/**
@@ -21,7 +60,7 @@ class PatrolService extends BaseApplicationComponent
 	 * @param	Model	$settings
 	 * @return	bool
 	 */
-	public function protect(Model $settings)
+	protected function protect(Model $settings)
 	{
 		if ($settings->getAttribute('forceSsl'))
 		{
@@ -83,9 +122,9 @@ class PatrolService extends BaseApplicationComponent
 		}
 	}
 
-	public function restrict(Model $settings)
+	protected function restrict(Model $settings)
 	{
-		// Ignore CP requests even in maintenance mode
+		// Ignore CP requests even on maintenance mode
 		if ($settings->getAttribute('maintenanceMode') && !craft()->request->isCpRequest())
 		{
 			$requestingIp	= $this->getRequestingIp();
@@ -121,31 +160,6 @@ class PatrolService extends BaseApplicationComponent
 
 				$this->forceRedirect($maintenanceUrl);
 			}
-		}
-	}
-
-	public function prepare(array $settings=array())
-	{
-		$authorizedIps		= $this->get('authorizedIps', $settings);
-		$restrictedAreas	= $this->get('restrictedAreas', $settings);
-
-		if ($authorizedIps)
-		{
-			$authorizedIps = $this->parseIps($authorizedIps);
-
-			$settings['authorizedIps'] = empty($authorizedIps) ? '' : $authorizedIps;
-		}
-
-		if ($restrictedAreas)
-		{
-			$restrictedAreas = $this->parseAreas($restrictedAreas);
-
-			$settings['restrictedAreas'] = empty($restrictedAreas) ? '' : $restrictedAreas;
-		}
-
-		if (empty($this->warnings))
-		{
-			return $settings;
 		}
 	}
 
@@ -213,117 +227,9 @@ class PatrolService extends BaseApplicationComponent
 		return (bool) (stripos((string) $authorizedIps, $this->getRequestingIp()) !== false);
 	}
 
-	public function getEnvSettings()
+	public function getDevMode($default=false)
 	{
-		/**
-		 * -------------------------------------------------------------------------------
-		 * CONSTANT			ACCESS		LEGEND
-		 * -------------------------------------------------------------------------------
-		 * PHP_INI_USER		1			Entry can be set in user scripts like in ini_set()
-		 * PHP_INI_PERDIR	2			Entry can be set in php.ini/.htaccess/httpd.conf
-		 * PHP_INI_SYSTEM	4			Entry can be set in php.ini/httpd.conf
-		 * PHP_INI_ALL		7			Entry can be set anywhere
-		 */
-
-		$options	= array();
-		$settings	= @ini_get_all();
-
-		if (is_array($settings) && count($settings))
-		{
-			foreach ($settings as $option => $properties)
-			{
-				$options[$option] = array(
-					'defaultVal'	=> $properties['global_value'],
-					'runtimeVal'	=> $properties['local_value'],
-					'accessLevel'	=> $properties['access'],
-					'canChangeOtf'	=> (bool) ($properties['access'] == 1 || $properties['access'] == 7)
-				);
-			}
-		}
-
-		// return craft()->templates->render('patrol/_env', compact('options'));
-	}
-
-	/**
-	 * Format a flat JSON string to make it more human-readable
-	 *
-	 * @param string $json
-	 *		The original JSON string to process
-	 *		When the input is not a string it is assumed the input is RAW
-	 *		and should be converted to JSON first of all.
-	 *
-	 * @return string Indented version of the original JSON string
-	 */
-	public function jsonPrettify($json)
-	{
-		if (!is_string($json))
-		{
-			if (phpversion() && phpversion() >= 5.4)
-			{
-				return json_encode($json, JSON_PRETTY_PRINT);
-			}
-
-			$json = json_encode($json);
-		}
-
-		$pos			= 0;
-		$result			= '';
-		$strLen			= strlen($json);
-		$indentStr		= "\t";
-		$newLine		= "\n";
-		$prevChar		= '';
-		$outOfQuotes	= true;
-
-		for ($i=0; $i<$strLen; $i++)
-		{
-			// Grab the next character in the string
-			$char = substr($json, $i, 1);
-
-			// Are we inside a quoted string?
-			if ($char == '"' && $prevChar != '\\') {
-				$outOfQuotes = !$outOfQuotes;
-			}
-			// If this character is the end of an element,
-			// output a new line and indent the next line
-			else if (($char == '}' || $char == ']') && $outOfQuotes)
-			{
-				$result .= $newLine;
-				$pos--;
-				for ($j = 0; $j < $pos; $j++) {
-					$result .= $indentStr;
-				}
-			}
-			// eat all non-essential whitespace in the input as we do our own here and it would only mess up our process
-			else if ($outOfQuotes && false !== strpos(" \t\r\n", $char))
-			{
-				continue;
-			}
-
-			// Add the character to the result string
-			$result .= $char;
-			// always add a space after a field colon:
-			if ($char == ':' && $outOfQuotes)
-			{
-				$result .= ' ';
-			}
-
-			// If the last character was the beginning of an element,
-			// output a new line and indent the next line
-			if (($char == ',' || $char == '{' || $char == '[') && $outOfQuotes)
-			{
-				$result .= $newLine;
-				if ($char == '{' || $char == '[') {
-					$pos++;
-				}
-				for ($j = 0; $j < $pos; $j++) {
-					$result .= $indentStr;
-				}
-			}
-
-			$prevChar = $char;
-		}
-
-		return $result;
+		return craft()->config->get('devMode') ? true : $default;
 	}
 
 	public function getImportFieldName()
@@ -360,14 +266,11 @@ class PatrolService extends BaseApplicationComponent
 
 	protected function forceSsl()
 	{
-		if (!craft()->config->get('devMode'))
-		{
-			$siteUrl	= UrlHelper::getSiteUrl();
-			$requestUri	= craft()->request->getUrl();
-			$redirectTo	= str_replace('http://', 'https://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
+		$siteUrl	= UrlHelper::getSiteUrl();
+		$requestUri	= craft()->request->getUrl();
+		$redirectTo	= str_replace('http://', 'https://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
 
-			craft()->request->redirect($redirectTo);
-		}
+		craft()->request->redirect($redirectTo);
 	}
 
 	protected function revertSsl()

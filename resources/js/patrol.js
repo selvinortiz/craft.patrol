@@ -31,6 +31,7 @@ var Patrol = Patrol || {
 		element.addClass("disabled");
 	}
 };
+
 (function() {
 	if (typeof $ == "object" || typeof $ == "function") {
 		Patrol.requestingIpButton.on("click", function(e) {

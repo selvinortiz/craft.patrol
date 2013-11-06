@@ -7,6 +7,7 @@ namespace Craft;
  * Patrol aims to improve deployment workflow and security for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
+ * @version		0.8.0
  * @package		Patrol
  * @category	Security
  */
@@ -15,7 +16,7 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.7.0',
+		'version'		=> '0.8.0',
 		'description'	=> 'Patrol aims to improve deployment workflow and security for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
@@ -25,10 +26,7 @@ class PatrolPlugin extends BasePlugin
 
 	public function init()
 	{
-		// PatrolHelper
 		Craft::import('plugins.patrol.helpers.PatrolHelper');
-
-		// Patrol.watch()
 		craft()->patrol->watch($this->getSettings());
 	}
 
@@ -60,9 +58,10 @@ class PatrolPlugin extends BasePlugin
 	}
 
 	/**
-	 * Extended version of getSettings() to handle two use cases for settings
+	 * Extended version of getSettings() to handle settings prep for the template
 	 *
-	 * @param	bool		$templateReady	Whether or not settings should be prepared for template use
+	 * @param	bool	$templateReady	Whether or not settings should be prepared for template use
+	 *
 	 * @return	BaseModel
 	 */
 	public function getSettings($templateReady=false)
@@ -91,32 +90,50 @@ class PatrolPlugin extends BasePlugin
 
 	public function getSettingsHtml()
 	{
-		craft()->templates->includeCssResource('patrol/css/patrol.css');
-		craft()->templates->includeJsResource('patrol/js/jquery.backstretch.min.js');
-		craft()->templates->includeJsResource('patrol/js/mousetrap.min.js');
-		craft()->templates->includeJsResource('patrol/js/patrol.js');
+		$this->includeResources();
 
-		$settings = $this->getSettings();
-
-		return craft()->templates->render('patrol/_settings',
-			array(
-				'name'			=> $this->getName(),
-				'status'		=> $settings->maintenanceMode || $settings->forceSsl ? 'Watching' : 'Off Duty',
-				'version'		=> $this->getVersion(),
-				'description'	=> $this->getDescription(),
-				'settings'		=> $this->getSettings(true),
-				'importUrl'		=> sprintf('/%s/%s/patrol/importSettings', craft()->config->get('cpTrigger'), craft()->config->get('actionTrigger')),
-				'exportUrl'		=> sprintf('/%s/%s/patrol/exportSettings', craft()->config->get('cpTrigger'), craft()->config->get('actionTrigger')),
-				'hasCpRule'		=> craft()->patrol->hasCpRule($settings),
-				'hasIpRule'		=> craft()->patrol->hasIpRule($settings),
-				'requestingIp'	=> craft()->patrol->getRequestingIp()
-			)
-		);
+		return craft()->templates->render('patrol/_settings', $this->getTemplateVars());
 	}
 
 	public function prepSettings($settings=array())
 	{
 		return craft()->patrol->prepare($settings);
+	}
+
+	protected function includeResources()
+	{
+		if (craft()->config->get('devMode'))
+		{
+			craft()->templates->includeCssResource('patrol/css/patrol.css');
+			craft()->templates->includeJsResource('patrol/js/mousetrap.js');
+			craft()->templates->includeJsResource('patrol/js/patrol.js');
+		}
+		else
+		{
+			craft()->templates->includeCssResource('patrol/min/patrol.css');
+			craft()->templates->includeJsResource('patrol/min/patrol.js');
+		}
+	}
+
+	protected function getTemplateVars()
+	{
+		$settings		= $this->getSettings();
+		$baseCpUrl		= sprintf('/%s/%s/', craft()->config->get('cpTrigger'), craft()->config->get('actionTrigger'));
+		$patrolStatus	= !craft()->config->get('devMode') && ($settings->maintenanceMode || $settings->forceSsl) ? 'On Duty' : 'Off Duty';
+
+		return array(
+			'name'			=> $this->getName(),
+			'status'		=> $patrolStatus,
+			'version'		=> $this->getVersion(),
+			'description'	=> $this->getDescription(),
+			'settings'		=> $this->getSettings(true),
+			'importUrl'		=> $baseCpUrl.'/patrol/importSettings',
+			'exportUrl'		=> $baseCpUrl.'/patrol/exportSettings',
+			'hasCpRule'		=> craft()->patrol->hasCpRule($settings),
+			'hasIpRule'		=> craft()->patrol->hasIpRule($settings),
+			'devMode'		=> craft()->config->get('devMode'),
+			'requestingIp'	=> craft()->patrol->getRequestingIp()
+		);
 	}
 
 	protected function getPluginAlias($default='')

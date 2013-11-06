@@ -1,4 +1,4 @@
-## Patrol 0.7.0
+## Patrol 0.8.0
 Patrol aims to improve deployment workflow and security for sites built with [Craft](http://buildwithcraft.com)
 
 ## TL;DR
@@ -14,3 +14,8 @@ Patrol aims to improve deployment workflow and security for sites built with [Cr
 Additionally, settings **export/import** _(JSON)_ functionality is available so that they can be shared between users or sites.
 
 ![Maintenance Mode](etc/settings.png)
+
+## NOTES
+1. The CP is accessible even if **maintenance mode** is turned on so that you can log in and add your _IP_ to get authorized if you aren't already.
+2. Patrol will not perform any of its tasks if **devMode** is on, if you want to test locally, you can turn **devMode** off.
+

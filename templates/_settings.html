@@ -8,7 +8,7 @@
 		</p>
 		<div class="patrolSection">
 			<h3 class="ico maintenance">Maintenance Settings</h3>
-			<input type="hidden" name="return" value="{{ cpUrl("settings/plugins/patrol") }}">
+			<input type="hidden" name="return" value="{{ cpUrl('settings/plugins/patrol') }}">
 			{{
 				forms.checkboxField({
 					id:				"maintenanceMode",
@@ -27,7 +27,7 @@
 					id:				"maintenanceUrl",
 					name:			"maintenanceUrl",
 					label:			"Maintenance URL"|t,
-					placeholder:	"/maintenance.html",
+					placeholder:	"/maintenance",
 					instructions:	"The URL that users should be redirected to if maintenance mode is enabled."|t,
 					value:			settings.maintenanceUrl,
 					errors:			""
@@ -82,6 +82,10 @@
 
 		<div class="patrolSection">
 			<h3 class="ico settings">Plugin Settings</h3>
+			{% if devMode %}
+				<p><strong>NOTE:</strong> Patrol is currently <strong>off duty</strong> because <strong>devMode</strong> is turned on.</p>
+				<div class="devMode"></div>
+			{% endif %}
 			{{
 				forms.checkboxField({
 					id:				"enableCpTab",
@@ -98,7 +102,7 @@
 					id:				"pluginAlias",
 					name:			"pluginAlias",
 					label:			"Plugin Alias"|t,
-					instructions:	"You can change the name of this plugin to something easier for you to remember and identify."|t,
+					instructions:	"You can change the name of this plugin to something easier for you to remember."|t,
 					value:			name,
 					errors:			""
 				})
