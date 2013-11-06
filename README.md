@@ -19,4 +19,4 @@ Additionally, settings **export/import** _(JSON)_ functionality is available so 
 
 ## Notes
 1. The CP is accessible even if **maintenance mode** is turned on to avoid admin lockouts.
-2. Patrol will og _off duty_ if **devMode** is on regardless of its settings.
+2. Patrol will go _off duty_ if **devMode** is turned on regardless of its settings.
