@@ -1,10 +1,9 @@
-## Patrol 0.8.0
 ![Patrol](etc/patrol.png)
 
-## TL;DR
+## Patrol 0.8.0
 Patrol aims to improve deployment workflow and security for sites built with [Craft](http://buildwithcraft.com)
 
-## Description
+## Features
 **Maintenance:** Allows you to display a splash page to let users know that your site is **down for maintenance** while giving authorized users full access to the front-end and CP.
 
 ![Maintenance Mode](etc/maintenance.png)
