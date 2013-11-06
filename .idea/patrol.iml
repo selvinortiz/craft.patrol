@@ -7,10 +7,10 @@
     <orderEntry type="module-library">
       <library name="PHP">
         <CLASSES>
-          <root url="file://C:/www/selv.app/selv/craft" />
+          <root url="file://C:/www/selv.app/selv/craft/app" />
         </CLASSES>
         <SOURCES>
-          <root url="file://C:/www/selv.app/selv/craft" />
+          <root url="file://C:/www/selv.app/selv/craft/app" />
         </SOURCES>
       </library>
     </orderEntry>

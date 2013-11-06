@@ -3,14 +3,13 @@ namespace Craft;
 
 class PatrolService extends BaseApplicationComponent
 {
-	protected $helper			= null;
-	protected $warnings			= array();
-	protected $dynamicParams	= array();
+	protected $warnings			= null;
+	protected $dynamicParams	= null;
 	protected $exportFileName	= 'patrol.json';
 	protected $importFieldName	= 'patrolFile';
 
 	/**
-	 * Kickstart Patrol if devMode is turned off
+	 * Runs Patrol if devMode is turned off
 	 *
 	 * @param Model $settings
 	 */
@@ -24,43 +23,12 @@ class PatrolService extends BaseApplicationComponent
 	}
 
 	/**
-	 * Prepares plugin settings before saving to db
-	 *
-	 * @param array $settings
-	 * @return array
-	 */
-	public function prepare(array $settings=array())
-	{
-		$authorizedIps		= $this->get('authorizedIps', $settings);
-		$restrictedAreas	= $this->get('restrictedAreas', $settings);
-
-		if ($authorizedIps)
-		{
-			$authorizedIps = $this->parseIps($authorizedIps);
-
-			$settings['authorizedIps'] = empty($authorizedIps) ? '' : $authorizedIps;
-		}
-
-		if ($restrictedAreas)
-		{
-			$restrictedAreas = $this->parseAreas($restrictedAreas);
-
-			$settings['restrictedAreas'] = empty($restrictedAreas) ? '' : $restrictedAreas;
-		}
-
-		if (empty($this->warnings))
-		{
-			return $settings;
-		}
-	}
-
-	/**
-	 * Handle SSL enforcement based on plugin settings
+	 * Forces SSL based on restrictedAreas
 	 *
 	 * @param	Model	$settings
 	 * @return	bool
 	 */
-	protected function protect(Model $settings)
+	public function protect(Model $settings)
 	{
 		if ($settings->getAttribute('forceSsl'))
 		{
@@ -68,10 +36,8 @@ class PatrolService extends BaseApplicationComponent
 			$restrictedAreas	= $settings->getAttribute('restrictedAreas');
 			$securedConnection	= craft()->request->isSecureConnection();
 
-			// Protect everything
 			if (empty($restrictedAreas))
 			{
-				// Only if connection is not secure to avoid redirect loop
 				if (!$securedConnection)
 				{
 					$this->forceSsl();
@@ -80,7 +46,7 @@ class PatrolService extends BaseApplicationComponent
 				return true;
 			}
 
-			// Run checks if connection is not secure
+			// Force SSL
 			if (!$securedConnection)
 			{
 				foreach ($restrictedAreas as $restrictedArea)
@@ -100,12 +66,11 @@ class PatrolService extends BaseApplicationComponent
 				return true;
 			}
 
-			// Revert SSL: Inspect the request if the connection is being made over HTTPS
+			// Revert SSL
 			if ($securedConnection)
 			{
 				foreach ($restrictedAreas as $restrictedArea)
 				{
-					// Parse dynamic variables: /{cpTrigger} > /admin
 					if (stripos($restrictedArea, '{') !== false)
 					{
 						$restrictedArea = $this->parseTags($restrictedArea);
@@ -122,10 +87,15 @@ class PatrolService extends BaseApplicationComponent
 		}
 	}
 
-	protected function restrict(Model $settings)
+	/**
+	 * Restricts accessed based on authorizedIps
+	 *
+	 * @param	Model	$settings
+	 * @return	bool
+	 */
+	public function restrict(Model $settings)
 	{
-		// Ignore CP requests even on maintenance mode
-		if ($settings->getAttribute('maintenanceMode') && !craft()->request->isCpRequest())
+		if (!craft()->request->isCpRequest() && $settings->getAttribute('maintenanceMode'))
 		{
 			$requestingIp	= $this->getRequestingIp();
 			$authorizedIps	= $settings->getAttribute('authorizedIps');
@@ -161,19 +131,6 @@ class PatrolService extends BaseApplicationComponent
 				$this->forceRedirect($maintenanceUrl);
 			}
 		}
-	}
-
-	public function importSettings(\CUploadedFile $file)
-	{
-		$fileContent = IOHelper::getFileContents($file->getTempName());
-		$fileContent = json_decode($fileContent, true);
-
-		if (json_last_error() == JSON_ERROR_NONE && isset($fileContent['settings']))
-		{
-			return craft()->plugins->savePluginSettings(craft()->plugins->getPlugin('patrol'), $fileContent['settings']);
-		}
-
-		return false;
 	}
 
 	/**
@@ -227,41 +184,63 @@ class PatrolService extends BaseApplicationComponent
 		return (bool) (stripos((string) $authorizedIps, $this->getRequestingIp()) !== false);
 	}
 
+	public function parseIps($ips)
+	{
+		if (is_string($ips))
+		{
+			$ips = explode(PHP_EOL, $ips);
+		}
+
+		return $this->ignoreEmptyValues($ips, function($val)
+		{
+			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
+		});
+	}
+
+	public function parseAreas($areas)
+	{
+		if (is_string($areas))
+		{
+			$areas	= explode(PHP_EOL, $areas);
+		}
+
+		$patrol	= $this;
+
+		return $this->ignoreEmptyValues($areas, function($val) use($patrol)
+		{
+			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
+
+			if (!$valid)
+			{
+				$patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
+
+				return false;
+			}
+
+			return true;
+		});
+	}
+
 	public function getDevMode($default=false)
 	{
 		return craft()->config->get('devMode') ? true : $default;
-	}
-
-	public function getImportFieldName()
-	{
-		return $this->importFieldName;
-	}
-
-	public function getExportFileName()
-	{
-		return $this->exportFileName;
-	}
-
-	public function getHelper()
-	{
-		if (is_null($this->helper))
-		{
-			$this->helper = new PatrolHelper();
-		}
-
-		return $this->helper;
 	}
 
 	protected function forceRedirect($redirectTo='')
 	{
 		if (empty($redirectTo))
 		{
-			echo craft()->templates->renderString(IOHelper::getFileContents(craft()->path->getPluginsPath().'patrol/templates/_down.html'));
-
-			craft()->end(); // throw new HttpException(403);
+			$this->renderDefaultSplash();
 		}
 
 		craft()->request->redirect($redirectTo);
+	}
+
+	protected function renderDefaultSplash()
+	{
+		echo craft()->templates->renderString(IOHelper::getFileContents(craft()->path->getPluginsPath().'patrol/templates/_down.html'));
+		craft()->end();
+		// throw new HttpException(403);
 	}
 
 	protected function forceSsl()
@@ -294,43 +273,6 @@ class PatrolService extends BaseApplicationComponent
 		return $str;
 	}
 
-	protected function parseIps($ips)
-	{
-		if (is_string($ips))
-		{
-			$ips = explode(PHP_EOL, $ips);
-		}
-
-		return $this->ignoreEmptyValues($ips, function($val)
-		{
-			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
-		});
-	}
-
-	protected function parseAreas($areas)
-	{
-		if (is_string($areas))
-		{
-			$areas	= explode(PHP_EOL, $areas);
-		}
-
-		$patrol	= $this;
-
-		return $this->ignoreEmptyValues($areas, function($val) use($patrol)
-		{
-			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
-
-			if (!$valid)
-			{
-				$patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
-
-				return false;
-			}
-
-			return true;
-		});
-	}
-
 	protected function ignoreEmptyValues(array $values=array(), \Closure $filter=null, $preserveKeys=false)
 	{
 		$data = array();
@@ -360,14 +302,18 @@ class PatrolService extends BaseApplicationComponent
 	{
 		if (is_null($this->dynamicParams))
 		{
-			$this->dynamicParams = array(
+			$environmentVariables	= craft()->config->get('environmentVariables');
+
+			$predefinedVariables	= array(
 				'cpTrigger'	=> craft()->config->get('cpTrigger')
 			);
-		}
-	}
 
-	protected function get($key, array $data, $default=false)
-	{
-		return array_key_exists($key, $data) ? $data[$key] : $default;
+			if (count($environmentVariables))
+			{
+				$predefinedVariables = array_merge($predefinedVariables, $environmentVariables);
+			}
+
+			$this->dynamicParams = $predefinedVariables;
+		}
 	}
 }

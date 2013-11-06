@@ -7,16 +7,17 @@ namespace Craft;
  * Patrol aims to improve deployment workflow and security for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.8.0
+ * @version		0.9.0
  * @package		Patrol
  * @category	Security
+ * @since		Craft 1.3
  */
 
 class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.8.0',
+		'version'		=> '0.9.0',
 		'description'	=> 'Patrol aims to improve deployment workflow and security for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
@@ -26,7 +27,6 @@ class PatrolPlugin extends BasePlugin
 
 	public function init()
 	{
-		Craft::import('plugins.patrol.helpers.PatrolHelper');
 		craft()->patrol->watch($this->getSettings());
 	}
 
@@ -58,17 +58,15 @@ class PatrolPlugin extends BasePlugin
 	}
 
 	/**
-	 * Extends getSettings() to handle prep for the template use
+	 * Extends getSettings() to handle formatting for template use
 	 *
-	 * @param	bool	$templateReady	Whether or not settings should be prepared for template use
-	 *
-	 * @return	BaseModel
+	 * @param	bool	$templateReady	Whether or not settings should be formatted for template use
+	 * @return	Model
 	 */
 	public function getSettings($templateReady=false)
 	{
 		$settingsModel = parent::getSettings();
 
-		// Prepare settings for template use?
 		if ($templateReady)
 		{
 			$authorizedIps		= $settingsModel->getAttribute('authorizedIps');
@@ -97,7 +95,20 @@ class PatrolPlugin extends BasePlugin
 
 	public function prepSettings($settings=array())
 	{
-		return craft()->patrol->prepare($settings);
+		return craft()->patrol_settings->prepare($settings);
+	}
+
+	public function onAfterInstall()
+	{
+		// craft()->patrol_settings->save();
+		$patrolUrl = sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger'));
+
+		craft()->request->redirect($patrolUrl);
+	}
+
+	public function getSettingsService()
+	{
+		return craft()->patrol_settings;
 	}
 
 	protected function includeResources()

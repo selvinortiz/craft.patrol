@@ -1,0 +1,24 @@
+{
+	"metadata": {
+		"exportedFrom": "Selvin Ortiz",
+		"exportedAt": {
+			"date": "2013-11-06 20:35:02",
+			"timezone_type": 3,
+			"timezone": "UTC"
+		},
+		"exportedBy": "selvinortiz"
+	},
+	"settings": {
+		"maintenanceMode": "1",
+		"maintenanceUrl": "",
+		"authorizedIps": [
+			"127.0.0.1"
+		],
+		"forceSsl": "",
+		"restrictedAreas": [
+			"\/{cpTrigger}"
+		],
+		"enableCpTab": "1",
+		"pluginAlias": "Patrol"
+	}
+}
