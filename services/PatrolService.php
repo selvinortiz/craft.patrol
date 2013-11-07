@@ -108,7 +108,7 @@ class PatrolService extends BaseApplicationComponent
 
 			if (empty($authorizedIps))
 			{
-				$this->forceRedirect();
+				$this->forceRedirect($maintenanceUrl);
 			}
 
 			if (is_array($authorizedIps) && count($authorizedIps))
