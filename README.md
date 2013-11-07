@@ -4,6 +4,8 @@
 Patrol aims to improve deployment workflow and security for sites built with [Craft](http://buildwithcraft.com)
 
 ### Maintenance Mode
+
+---
 Maintenance mode allows you to redirect traffic to a specific **maintenance URL** while giving full access to all authorized users.
 
 #### Enable Maintenance Mode `[+]`
@@ -16,6 +18,8 @@ The URL to redirect traffic to if _maintenance mode_ is enabled.
 The list of IPs that should be granted access when _maintenance mode_ is enabled.
 
 ### Paranoid Mode
+
+---
 Paranoid mode allows you to **force SSL** sitewide or on specific sections, giving you fine grain control without messing with _htaccess_ rules.
 
 #### Enable Paranoid Mode `[+]`
