@@ -21,7 +21,7 @@ class PatrolController extends BaseController
 		$this->requireAdmin();
 		$this->requirePostRequest();
 
-		if (craft()->patrol_settings->save())
+		if (craft()->patrol_settings->import())
 		{
 			craft()->userSession->setNotice('Patrol settings saved successfully');
 		}

@@ -85,7 +85,12 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 		if ($file && isset($file['name'][$field]) && $file['error'][$field] == 0)
 		{
-			return craft()->patrol_settings->save($file['tmp_name'][$file]);
+			if (empty($file['tmp_name'][$file]))
+			{
+				return false;
+			}
+
+			return $this->save($file['tmp_name'][$file]);
 		}
 
 		return false;
