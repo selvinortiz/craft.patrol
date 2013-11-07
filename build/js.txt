@@ -1,2 +1,0 @@
-mousetrap.js
-patrol.js
