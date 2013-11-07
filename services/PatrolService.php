@@ -184,43 +184,6 @@ class PatrolService extends BaseApplicationComponent
 		return (bool) (stripos((string) $authorizedIps, $this->getRequestingIp()) !== false);
 	}
 
-	public function parseIps($ips)
-	{
-		if (is_string($ips))
-		{
-			$ips = explode(PHP_EOL, $ips);
-		}
-
-		return $this->ignoreEmptyValues($ips, function($val)
-		{
-			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
-		});
-	}
-
-	public function parseAreas($areas)
-	{
-		if (is_string($areas))
-		{
-			$areas	= explode(PHP_EOL, $areas);
-		}
-
-		$patrol	= $this;
-
-		return $this->ignoreEmptyValues($areas, function($val) use($patrol)
-		{
-			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
-
-			if (!$valid)
-			{
-				$patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
-
-				return false;
-			}
-
-			return true;
-		});
-	}
-
 	public function getDevMode($default=false)
 	{
 		return craft()->config->get('devMode') ? true : $default;
@@ -263,9 +226,9 @@ class PatrolService extends BaseApplicationComponent
 
 	protected function parseTags($str='')
 	{
-		$this->loadDynamicParams();
+		$params = $this->getDynamicParams();
 
-		foreach ($this->dynamicParams as $key => $val)
+		foreach ($params as $key => $val)
 		{
 			$str = str_replace('{'.$key.'}', $val, $str);
 		}
@@ -273,47 +236,23 @@ class PatrolService extends BaseApplicationComponent
 		return $str;
 	}
 
-	protected function ignoreEmptyValues(array $values=array(), \Closure $filter=null, $preserveKeys=false)
-	{
-		$data = array();
-
-		if (count($values))
-		{
-			foreach ($values as $key => $value)
-			{
-				$value = trim($value);
-
-				if (!empty($value) && $filter($value))
-				{
-					$data[$key] = $value;
-				}
-			}
-
-			if (!$preserveKeys)
-			{
-				$data = array_values($data);
-			}
-		}
-
-		return $data;
-	}
-
-	protected function loadDynamicParams()
+	protected function getDynamicParams()
 	{
 		if (is_null($this->dynamicParams))
 		{
-			$environmentVariables	= craft()->config->get('environmentVariables');
-
-			$predefinedVariables	= array(
+			$env	= craft()->config->get('environmentVariables');
+			$vars	= array(
 				'cpTrigger'	=> craft()->config->get('cpTrigger')
 			);
 
-			if (count($environmentVariables))
+			if (count($env))
 			{
-				$predefinedVariables = array_merge($predefinedVariables, $environmentVariables);
+				$vars = array_merge($vars, $env);
 			}
 
-			$this->dynamicParams = $predefinedVariables;
+			$this->dynamicParams = $vars;
 		}
+
+		return $this->dynamicParams;
 	}
 }

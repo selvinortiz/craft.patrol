@@ -3,8 +3,19 @@ namespace Craft;
 
 class Patrol_SettingsService extends BaseApplicationComponent
 {
+	protected static $instance	= null;
 	protected $exportFileName	= 'Patrol.json';
 	protected $importFieldName	= 'patrolFile';
+
+	public function getInstance()
+	{
+		if (is_null(static::$instance))
+		{
+			static::$instance = new self;
+		}
+
+		return static::$instance;
+	}
 
 	/**
 	 * Prepares plugin settings before saving to db
@@ -21,14 +32,14 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 		if ($authorizedIps)
 		{
-			$authorizedIps = craft()->patrol->parseIps($authorizedIps);
+			$authorizedIps = $this->parseIps($authorizedIps);
 
 			$settings['authorizedIps'] = empty($authorizedIps) ? '' : $authorizedIps;
 		}
 
 		if ($restrictedAreas)
 		{
-			$restrictedAreas = craft()->patrol->parseAreas($restrictedAreas);
+			$restrictedAreas = $this->parseAreas($restrictedAreas);
 
 			$settings['restrictedAreas'] = empty($restrictedAreas) ? '' : $restrictedAreas;
 		}
@@ -94,6 +105,22 @@ class Patrol_SettingsService extends BaseApplicationComponent
 		}
 
 		return false;
+	}
+
+	public static function doSave()
+	{
+		$instance	= static::getInstance();
+		$patrolUrl	= sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger'));
+
+		$instance->save();
+		craft()->request->redirect($patrolUrl);
+	}
+
+	public static function doPrepare(array $settings=array())
+	{
+		$instance = static::getInstance();
+
+		return $instance->prepare($settings);
 	}
 
 	/**
@@ -176,6 +203,68 @@ class Patrol_SettingsService extends BaseApplicationComponent
 		}
 
 		return $result;
+	}
+
+	public function parseIps($ips)
+	{
+		if (is_string($ips))
+		{
+			$ips = explode(PHP_EOL, $ips);
+		}
+
+		return $this->ignoreEmptyValues($ips, function($val)
+		{
+			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
+		});
+	}
+
+	public function parseAreas($areas)
+	{
+		if (is_string($areas))
+		{
+			$areas	= explode(PHP_EOL, $areas);
+		}
+
+		$patrol	= $this;
+
+		return $this->ignoreEmptyValues($areas, function($val) use($patrol)
+		{
+			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
+
+			if (!$valid)
+			{
+				$patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
+
+				return false;
+			}
+
+			return true;
+		});
+	}
+
+	protected function ignoreEmptyValues(array $values=array(), \Closure $filter=null, $preserveKeys=false)
+	{
+		$data = array();
+
+		if (count($values))
+		{
+			foreach ($values as $key => $value)
+			{
+				$value = trim($value);
+
+				if (!empty($value) && $filter($value))
+				{
+					$data[$key] = $value;
+				}
+			}
+
+			if (!$preserveKeys)
+			{
+				$data = array_values($data);
+			}
+		}
+
+		return $data;
 	}
 
 	protected function getSettingsFile()

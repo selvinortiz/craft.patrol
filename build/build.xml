@@ -33,8 +33,8 @@
         <echo msg="Finishing up..." />
     </target>
 
-    <target name="distro">
-        <echo msg="Preparing distro..." />
+    <target name="release">
+        <echo msg="Preparing release distro..." />
         <zip destfile="../../patrol.${pluginVersion}.zip">
             <fileset dir="../../">
                 <include name="patrol/" />
@@ -44,7 +44,7 @@
                 <exclude name="patrol/.gitignore" />
             </fileset>
         </zip>
-        <echo msg="Distro .zip has been created!" />
+        <echo msg="Release .zip has been created!" />
     </target>
 
 </project>

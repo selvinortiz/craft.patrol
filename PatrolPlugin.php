@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol aims to improve deployment workflow and security for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.0
+ * @version		0.9.1
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -17,7 +17,7 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.0',
+		'version'		=> '0.9.1',
 		'description'	=> 'Patrol aims to improve deployment workflow and security for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
@@ -41,8 +41,6 @@ class PatrolPlugin extends BasePlugin
 	public function getDeveloperUrl()	{ return $this->metadata['developer']['website']; }
 
 	public function hasCpSection()		{ return (bool) $this->getSettings()->enableCpTab; }
-
-	public function registerCpRoutes()	{ return array(); }
 
 	public function defineSettings()
 	{
@@ -93,22 +91,42 @@ class PatrolPlugin extends BasePlugin
 		return craft()->templates->render('patrol/_settings', $this->getTemplateVars());
 	}
 
+	/**
+	 * Prepare setting for save to db
+	 *
+	 * @todo	Remove isset() logic when onAfterInstall() support for services is fixed
+	 * @param	array	$settings
+	 * @return	array
+	 */
 	public function prepSettings($settings=array())
 	{
-		return craft()->patrol_settings->prepare($settings);
+		if (isset(craft()->patrol_settings))
+		{
+			return craft()->patrol_settings->prepare($settings);
+		}
+		else
+		{
+			return Patrol_SettingsService::doPrepare($settings);
+		}
 	}
 
+	/**
+	 * Saves default settings from /Patrol.json after installation
+	 *
+	 * @todo	Remove static call when craft()->patrol_settings->save() becomes available
+	 */
 	public function onAfterInstall()
 	{
-		// craft()->patrol_settings->save();
-		$patrolUrl = sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger'));
-
-		craft()->request->redirect($patrolUrl);
-	}
-
-	public function getSettingsService()
-	{
-		return craft()->patrol_settings;
+		if (isset(craft()->patrol_settings))
+		{
+			craft()->patrol_settings->save();
+		} else
+		{
+			if (class_exists(__NAMESPACE__.'\\Patrol_SettingsService'))
+			{
+				Patrol_SettingsService::doSave();
+			}
+		}
 	}
 
 	protected function includeResources()
