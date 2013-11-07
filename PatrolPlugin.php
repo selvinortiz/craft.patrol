@@ -54,7 +54,7 @@ class PatrolPlugin extends BasePlugin
 			'forceSsl'			=> array( AttributeType::Bool ),
 			'restrictedAreas'	=> array( AttributeType::Mixed ),
 			'enableCpTab'		=> array( AttributeType::Bool ),
-			'pluginAlias'		=> array( AttributeType::String )
+			'pluginAlias'		=> array( AttributeType::String ),
 		);
 	}
 

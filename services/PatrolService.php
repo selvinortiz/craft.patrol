@@ -9,17 +9,14 @@ class PatrolService extends BaseApplicationComponent
 	protected $importFieldName	= 'patrolFile';
 
 	/**
-	 * Runs Patrol if devMode is turned off
+	 * Begin watching...
 	 *
 	 * @param Model $settings
 	 */
 	public function watch(Model $settings)
 	{
-		if (!$this->getDevMode())
-		{
-			$this->protect($settings);
-			$this->restrict($settings);
-		}
+		$this->protect($settings);
+		$this->restrict($settings);
 	}
 
 	/**
@@ -185,11 +182,6 @@ class PatrolService extends BaseApplicationComponent
 		}
 
 		return (bool) (stripos((string) $authorizedIps, $this->getRequestingIp()) !== false);
-	}
-
-	public function getDevMode($default=false)
-	{
-		return craft()->config->get('devMode') ? true : $default;
 	}
 
 	protected function forceRedirect($redirectTo='')

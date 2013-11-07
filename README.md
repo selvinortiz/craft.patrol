@@ -9,7 +9,7 @@ Patrol simplifies **maintenance mode** and **SSL** management on sites built wit
 ### FAQ
 
 ---
-#### Maintenance Mode
+#### @Maintenance Mode
 ##### How do I give users access when maintenance mode is enabled?
 - You can add their **IP** to the _Authorized IPs_ list
 - Logged in users with **admin** permissions have full access by default
@@ -24,7 +24,7 @@ Patrol simplifies **maintenance mode** and **SSL** management on sites built wit
 ##### Doesn't Craft have a maintenance mode setting?
 - **Yes**, but it's meant for internal use only to handle updates
 
-#### Security
+#### @Security
 ##### How do I force SSL on the CP?
 - Click on the **Secure The CP** button and save your settings
 - Add `/{cpTrigger}` to the _Restricted Areas_
@@ -43,12 +43,12 @@ Patrol simplifies **maintenance mode** and **SSL** management on sites built wit
 3. Patrol will go **off duty** if **devMode** is turned on regardless of its settings
 4. Settings are exported in `JSON` format
 
-### Private Beta
-If you have agreed to help out by testing out Patrol and have been given access to this repo, you will be among the first to get the production ready version.
+### Beta Testers
+Thank you so much for helping me out with Patrol, you will be among the first to get the production ready version.
 
-Please keep the following in mind as you help me out with beta testing...
+Please keep the following in mind as you test Patrol...
 
-1. Download the latest (packaged) release rather than cloning the repo
+1. Download the latest release (zip/tar) rather than cloning the repo
 2. Do not distribute the source code without approval from yours truly
 3. Report all bugs and/or questionable features directly to me or by creating an issue within this repo
 4. Get in touch with me via twitter [@selvinortiz](http://twitter.com/selvinortiz) or via email selvin@selvin.co

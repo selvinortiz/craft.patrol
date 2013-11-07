@@ -71,7 +71,7 @@
 					class:			"code",
 					label:			"Restricted Areas"|t,
 					placeholder:	"/members",
-					instructions:	"The URLs where <strong>HTTPS</strong> should be enforced."|t,
+					instructions:	"The URLs where <strong>HTTPS</strong> should be enforced... will force SSL sitewide if left empty."|t,
 					value:			settings.restrictedAreas,
 					errors:			""
 				})
@@ -82,10 +82,6 @@
 
 		<div class="patrolSection">
 			<h3 class="ico settings">Plugin Settings</h3>
-			{% if devMode %}
-				<p><strong>NOTE:</strong> Patrol is currently <strong>off duty</strong> because <strong>devMode</strong> is turned on.</p>
-				<div class="devMode"></div>
-			{% endif %}
 			{{
 				forms.checkboxField({
 					id:				"enableCpTab",
