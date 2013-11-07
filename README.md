@@ -29,7 +29,7 @@ Patrol simplifies **maintenance mode** and **SSL** management on sites built wit
 - Click on the **Secure The CP** button and save your settings
 - Add `/{cpTrigger}` to the _Restricted Areas_
 
-##### How do I for SSL on my whole site?
+##### How do I force SSL on my whole site?
 - Leave the _restricted areas_ blank
 
 ##### How do I force SSL on a specific URL, like my login page?

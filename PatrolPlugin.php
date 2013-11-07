@@ -18,7 +18,7 @@ class PatrolPlugin extends BasePlugin
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
 		'version'		=> '0.9.2',
-		'description'	=> 'Patrol aims to improve deployment workflow and security for sites built with Craft',
+		'description'	=> 'Patrol simplifies maintenance mode and SSL management on sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
 			'website'	=> 'http://selv.in'

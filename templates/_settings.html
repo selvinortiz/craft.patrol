@@ -41,7 +41,7 @@
 					class:			"code",
 					label:			"Authorized IPs"|t,
 					placeholder:	"127.0.0.1",
-					instructions:	"The IPs that should be granted access when <strong>maintenance mode</strong> is enabled."|t,
+					instructions:	"Defines the <strong>IPs</strong> that should be granted access when <strong>maintenance mode</strong> is enabled."|t,
 					value:			settings.authorizedIps,
 					errors:			""
 				})
@@ -71,7 +71,7 @@
 					class:			"code",
 					label:			"Restricted Areas"|t,
 					placeholder:	"/members",
-					instructions:	"The URLs where <strong>HTTPS</strong> should be enforced... will force SSL sitewide if left empty."|t,
+					instructions:	"Defines the areas where <strong>SSL/HTTPS</strong> should be enforced which defaults to sitewide if left empty."|t,
 					value:			settings.restrictedAreas,
 					errors:			""
 				})
@@ -87,7 +87,7 @@
 					id:				"enableCpTab",
 					name:			"enableCpTab",
 					label:			"Enable CP Tab"|t,
-					instructions:	"Toggles display of the <strong>"~name~"</strong> tab on the main menu atop."|t,
+					instructions:	"Toggles the display of the <strong>["~name~"]</strong> CP tab on the main menu atop."|t,
 					value:			1,
 					checked:		settings.enableCpTab,
 					errors:			""
@@ -98,7 +98,7 @@
 					id:				"pluginAlias",
 					name:			"pluginAlias",
 					label:			"Plugin Alias"|t,
-					instructions:	"Allows you can change the name of this plugin to something easier for you to remember."|t,
+					instructions:	"Updates the label displayed on the <strong>["~name~"]</strong> CP tab if enabled and on the /admin/settings/plugins listing."|t,
 					value:			name,
 					errors:			""
 				})
@@ -115,7 +115,7 @@
 				<a id="runImportSettings" href="#" class="btn submit">Run Import</a>
 				<a id="cancelImportButton" href="#" class="btn icon delete">Cancel</a>
 			</div>
-			<p class="notice">The uploaded file should be <strong>.json</strong> and will replace your current settings</p>
+			<p class="notice">The chosen <strong>.json</strong> file will overwrite your current setting!</p>
 		</div>
 
 		<div class="patrolSection credits">
