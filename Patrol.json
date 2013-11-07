@@ -11,9 +11,9 @@
 	"settings": {
 		"maintenanceMode": "",
 		"maintenanceUrl": "",
-		"authorizedIps": [],
+		"authorizedIps": "",
 		"forceSsl": "",
-		"restrictedAreas": [],
+		"restrictedAreas": "",
 		"enableCpTab": "1",
 		"pluginAlias": "Patrol"
 	}
