@@ -9,15 +9,11 @@
 		"exportedBy": "selvinortiz"
 	},
 	"settings": {
-		"maintenanceMode": "1",
-		"maintenanceUrl": "\/hello",
-		"authorizedIps": [
-			"127.0.0.1"
-		],
-		"forceSsl": "1",
-		"restrictedAreas": [
-			"\/{cpTrigger}"
-		],
+		"maintenanceMode": "",
+		"maintenanceUrl": "",
+		"authorizedIps": [],
+		"forceSsl": "",
+		"restrictedAreas": [],
 		"enableCpTab": "1",
 		"pluginAlias": "Patrol"
 	}
