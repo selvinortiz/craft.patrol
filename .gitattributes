@@ -1,0 +1,16 @@
+*.md	text
+*.txt	text
+*.js	text
+*.json	text
+*.css	text
+*.less	text
+*.xml	text
+*.html	text
+*.twig	text
+*.php	text
+
+*.ai	binary
+*.zip	binary
+*.png	binary
+*.jpg	binary
+
