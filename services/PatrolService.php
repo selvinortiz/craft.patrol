@@ -95,6 +95,9 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	public function restrict(Model $settings)
 	{
+		// Authorize logged in admins on the fly
+		if (craft()->userSession->isAdmin()) { return true; }
+
 		if (!craft()->request->isCpRequest() && $settings->getAttribute('maintenanceMode'))
 		{
 			$requestingIp	= $this->getRequestingIp();

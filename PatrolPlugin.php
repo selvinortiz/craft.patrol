@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol aims to improve deployment workflow and security for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.1
+ * @version		0.9.2
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -17,7 +17,7 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.1',
+		'version'		=> '0.9.2',
 		'description'	=> 'Patrol aims to improve deployment workflow and security for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
@@ -30,7 +30,10 @@ class PatrolPlugin extends BasePlugin
 		craft()->patrol->watch($this->getSettings());
 	}
 
-	public function getName()			{ return $this->getPluginAlias($this->metadata['plugin']); }
+	public function getName($realName=false)
+	{
+		return $realName ? Craft::t($this->metadata['plugin']) : $this->getPluginAlias($this->metadata['plugin']);
+	}
 
 	public function getVersion()		{ return $this->metadata['version']; }
 
@@ -131,6 +134,7 @@ class PatrolPlugin extends BasePlugin
 
 	protected function includeResources()
 	{
+		// @todo	Migrate to production mode only on next major update
 		if (craft()->config->get('devMode'))
 		{
 			craft()->templates->includeCssResource('patrol/css/patrol.css');

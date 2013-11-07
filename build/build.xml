@@ -5,7 +5,7 @@
     <property name="jsPath" value="../resources/js/" />
     <property name="cssPath" value="../resources/css/" />
     <property name="minPath" value="../resources/min/" />
-    <property name="pluginVersion" value="v0.9.1" />
+    <property name="pluginVersion" value="v0.9.2" />
 
     <target name="clean">
         <echo msg="Running cleaning task..." />

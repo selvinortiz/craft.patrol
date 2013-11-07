@@ -5,9 +5,6 @@ class PatrolController extends BaseController
 {
 	protected $allowAnonymous = array('actionExportSettings');
 
-	/**
-	 * @Todo:	Put this controller on a diet, too fat right now.
-	 */
 	public function actionExportSettings()
 	{
 		$this->requireAdmin();

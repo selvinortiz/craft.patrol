@@ -18,7 +18,7 @@ class Patrol_SettingsService extends BaseApplicationComponent
 	}
 
 	/**
-	 * Prepares plugin settings before saving to db
+	 * Prepares plugin settings prior to saving them to the db
 	 *	- authorizedIps are converted from string to array
 	 *	- restrictedAreas are converted from string to array
 	 *

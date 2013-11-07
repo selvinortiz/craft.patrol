@@ -14,7 +14,7 @@
 					id:				"maintenanceMode",
 					name:			"maintenanceMode",
 					label:			"Enable Maintenance Mode"|t,
-					instructions:	"Redirects all unauthorized IP addresses to your maintenance URL."|t,
+					instructions:	"Redirects traffic to the <strong>maintenance URL</strong> except authorized users."|t,
 					value:			1,
 					checked:		settings.maintenanceMode,
 					first:			true,
@@ -28,7 +28,7 @@
 					name:			"maintenanceUrl",
 					label:			"Maintenance URL"|t,
 					placeholder:	"/maintenance",
-					instructions:	"The URL that users should be redirected to if maintenance mode is enabled."|t,
+					instructions:	"The URL to redirect traffic to if <strong>maintenance mode</strong> is enabled."|t,
 					value:			settings.maintenanceUrl,
 					errors:			""
 				})
@@ -39,15 +39,15 @@
 					name:			"authorizedIps",
 					rows:			6,
 					class:			"code",
-					label:			"Authorized IP Addresses"|t,
+					label:			"Authorized IPs"|t,
 					placeholder:	"127.0.0.1",
-					instructions:	"Add one address per line&hellip; to allow IP ranges just use the lowest IP in the range and leave out the incrementing bits."|t,
+					instructions:	"The IPs that should be granted access when <strong>maintenance mode</strong> is enabled."|t,
 					value:			settings.authorizedIps,
 					errors:			""
 				})
 			}}
 			<input type="hidden" id="requestingIp" name="requestingIp" value="{{ requestingIp }}"/>
-			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Authorize Me">Authorize Me</a>
+			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Authorize My IP">Authorize My IP</a>
 		</div>
 
 		<div class="patrolSection">
@@ -57,7 +57,7 @@
 					id:				"forceSsl",
 					name:			"forceSsl",
 					label:			"Enable Secured Connections"|t,
-					instructions:	"Forces connections over <strong>HTTPS</strong> on restricted areas."|t,
+					instructions:	"Forces connections over <strong>SSL/HTTPS</strong> on restricted areas."|t,
 					value:			1,
 					checked:		settings.forceSsl,
 					errors:			""
@@ -71,7 +71,7 @@
 					class:			"code",
 					label:			"Restricted Areas"|t,
 					placeholder:	"/members",
-					instructions:	"Add one URL/Section per line where <strong>HTTPS</strong> should be enforced."|t,
+					instructions:	"The URLs where <strong>HTTPS</strong> should be enforced."|t,
 					value:			settings.restrictedAreas,
 					errors:			""
 				})
@@ -102,7 +102,7 @@
 					id:				"pluginAlias",
 					name:			"pluginAlias",
 					label:			"Plugin Alias"|t,
-					instructions:	"You can change the name of this plugin to something easier for you to remember."|t,
+					instructions:	"Allows you can change the name of this plugin to something easier for you to remember."|t,
 					value:			name,
 					errors:			""
 				})
