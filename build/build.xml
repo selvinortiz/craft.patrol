@@ -38,7 +38,7 @@
         <zip destfile="../../patrol.${pluginVersion}.zip">
             <fileset dir="../../">
                 <include name="patrol/" />
-                <exclude name="patrol/distro/" />
+                <exclude name="patrol/build/" />
                 <exclude name="patrol/.git/" />
                 <exclude name="patrol/.idea/" />
                 <exclude name="patrol/.gitignore" />
