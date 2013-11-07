@@ -4,7 +4,7 @@ namespace Craft;
 /**
  * @=Patrol
  *
- * Patrol aims to improve deployment workflow and security for sites built with Craft
+ * Patrol simplifies maintenance mode and SSL management on sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
  * @version		0.9.2
