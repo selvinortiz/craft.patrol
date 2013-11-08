@@ -2,7 +2,7 @@
 
 {% block content %}
 	<div id="patrolSettings">
-		<h2>{{ name }} <span class="subtle">V{{ version }}</span></h2>
+		<h2>{{ name }} <span class="subtle">V{{ version }} {% if alias != name %}AKA ({{ alias }}){% endif %}</span></h2>
 		<p>
 			{{ description }}
 		</p>
@@ -71,7 +71,7 @@
 					class:			"code",
 					label:			"Restricted Areas"|t,
 					placeholder:	"/members",
-					instructions:	"Defines the areas where <strong>SSL/HTTPS</strong> should be enforced which defaults to sitewide if left empty."|t,
+					instructions:	"Defines the areas where <strong>SSL/HTTPS</strong> should be enforced, which defaults to **sitewide** if left empty."|t,
 					value:			settings.restrictedAreas,
 					errors:			""
 				})
@@ -87,7 +87,7 @@
 					id:				"enableCpTab",
 					name:			"enableCpTab",
 					label:			"Enable CP Tab"|t,
-					instructions:	"Toggles the display of the <strong>["~name~"]</strong> CP tab on the main menu atop."|t,
+					instructions:	"Toggles display of the <strong>["~name~"]</strong> CP tab on the main menu atop."|t,
 					value:			1,
 					checked:		settings.enableCpTab,
 					errors:			""
@@ -98,8 +98,8 @@
 					id:				"pluginAlias",
 					name:			"pluginAlias",
 					label:			"Plugin Alias"|t,
-					instructions:	"Updates the label displayed on the <strong>["~name~"]</strong> CP tab if enabled and on the /admin/settings/plugins listing."|t,
-					value:			name,
+					instructions:	"Updates the label displayed on the <strong>["~alias~"]</strong> CP tab if enabled and on the /admin/settings/plugins listing."|t,
+					value:			alias,
 					errors:			""
 				})
 			}}

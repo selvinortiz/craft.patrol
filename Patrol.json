@@ -9,12 +9,12 @@
 		"exportedBy": "selvinortiz"
 	},
 	"settings": {
-		"maintenanceMode": "",
+		"maintenanceMode": "1",
 		"maintenanceUrl": "",
 		"authorizedIps": "",
 		"forceSsl": "",
 		"restrictedAreas": "",
 		"enableCpTab": "1",
-		"pluginAlias": "Patrol",
+		"pluginAlias": "Patrol"
 	}
 }

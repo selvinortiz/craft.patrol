@@ -3,7 +3,7 @@ namespace Craft;
 
 class PatrolService extends BaseApplicationComponent
 {
-	protected $warnings			= null;
+	protected $warnings			= array();
 	protected $dynamicParams	= null;
 	protected $exportFileName	= 'patrol.json';
 	protected $importFieldName	= 'patrolFile';
@@ -249,5 +249,38 @@ class PatrolService extends BaseApplicationComponent
 		}
 
 		return $this->dynamicParams;
+	}
+
+	//--------------------------------------------------------------------------------
+	// Simple error tracking to aid communication between layers
+	//--------------------------------------------------------------------------------
+
+	public function getWarning($key=null, $default=false)
+	{
+		return array_key_exists($key, $this->warnings) ? $this->warnings[$key] : $default;
+	}
+
+	public function hasWarnings($key=null)
+	{
+		if (is_null($key))
+		{
+			return count($this->warnings);
+		}
+		else
+		{
+			return $this->getWarning($key) ? true : false;
+		}
+	}
+
+	public function addWarning($msg, $key=null)
+	{
+		if (is_null($key))
+		{
+			$this->warnings[] = $msg;
+		}
+		else
+		{
+			$this->warnings[$key] = $msg;
+		}
 	}
 }

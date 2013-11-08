@@ -3,19 +3,8 @@ namespace Craft;
 
 class Patrol_SettingsService extends BaseApplicationComponent
 {
-	protected static $instance	= null;
 	protected $exportFileName	= 'Patrol.json';
 	protected $importFieldName	= 'patrolFile';
-
-	public function getInstance()
-	{
-		if (is_null(static::$instance))
-		{
-			static::$instance = new self;
-		}
-
-		return static::$instance;
-	}
 
 	/**
 	 * Prepares plugin settings prior to saving them to the db
@@ -80,17 +69,16 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 	public function import()
 	{
-		$file	= array_shift($_FILES);
-		$field	= $this->importFieldName;
+		$file = $this->arrayFlatten(array_shift($_FILES), $this->importFieldName);
 
-		if ($file && isset($file['name'][$field]) && $file['error'][$field] == 0)
+		if ($file && isset($file['name']) && $file['error'] == 0)
 		{
-			if (empty($file['tmp_name'][$file]))
+			if (empty($file['tmp_name']))
 			{
 				return false;
 			}
 
-			return $this->save($file['tmp_name'][$file]);
+			return $this->save($file['tmp_name']);
 		}
 
 		return false;
@@ -100,7 +88,7 @@ class Patrol_SettingsService extends BaseApplicationComponent
 	{
 		if (is_null($path)) { $path = $this->getSettingsFile(); }
 
-		$jsonString	= $this->getFileContent($path, 'JSON');
+		$jsonString	= $this->getFileContent($path, 'text/plain');
 		$jsonObject	= json_decode($jsonString);
 
 		// @todo	Beef up settings validation from file
@@ -109,23 +97,9 @@ class Patrol_SettingsService extends BaseApplicationComponent
 			return craft()->plugins->savePluginSettings(craft()->plugins->getPlugin('patrol'), get_object_vars($jsonObject->settings));
 		}
 
+		craft()->patrol->addWarning($this->getJsonMessage(), 'jsonDecoding');
+
 		return false;
-	}
-
-	public static function doSave()
-	{
-		$instance	= static::getInstance();
-		$patrolUrl	= sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger'));
-
-		$instance->save();
-		craft()->request->redirect($patrolUrl);
-	}
-
-	public static function doPrepare(array $settings=array())
-	{
-		$instance = static::getInstance();
-
-		return $instance->prepare($settings);
 	}
 
 	/**
@@ -210,6 +184,42 @@ class Patrol_SettingsService extends BaseApplicationComponent
 		return $result;
 	}
 
+	/**
+	 * Gets the last JSON decoding message if any
+	 *
+	 * @param	null	$errorCode
+	 * @return	bool|string
+	 */
+	public function getJsonMessage($errorCode=null)
+	{
+		if (is_null($errorCode)) { $errorCode = json_last_error(); }
+
+		switch ($errorCode)
+		{
+			case JSON_ERROR_NONE:
+				return false;
+			break;
+			case JSON_ERROR_DEPTH:
+				return 'Maximum stack depth exceeded';
+			break;
+			case JSON_ERROR_STATE_MISMATCH:
+				return 'Underflow or the modes mismatch';
+			break;
+			case JSON_ERROR_CTRL_CHAR:
+				return 'Unexpected control character found';
+			break;
+			case JSON_ERROR_SYNTAX:
+				return 'Syntax error, malformed JSON';
+			break;
+			case JSON_ERROR_UTF8:
+				return 'Malformed UTF-8 characters, possibly incorrectly encoded';
+			break;
+			default:
+				return 'Unknown error';
+			break;
+		}
+	}
+
 	public function parseIps($ips)
 	{
 		if (is_string($ips))
@@ -277,13 +287,13 @@ class Patrol_SettingsService extends BaseApplicationComponent
 		return __DIR__.'/../patrol.json';
 	}
 
-	protected function getFileContent($path='', $restrictTo='json')
+	protected function getFileContent($path='', $restrictTo='text/plain')
 	{
 		$file = IOHelper::getFile($path);
 
 		if ($file)
 		{
-			if (!empty($restrictTo) && strtolower($file->getExtension()) != strtolower($restrictTo))
+			if (!empty($restrictTo) && strtolower($file->getMimeType()) != strtolower($restrictTo))
 			{
 				return false;
 			}
@@ -297,5 +307,37 @@ class Patrol_SettingsService extends BaseApplicationComponent
 	protected function get($key, array $data, $default=false)
 	{
 		return array_key_exists($key, $data) ? $data[$key] : $default;
+	}
+
+	/**
+	 * Flattens an associative array with a known second level subKey
+	 *
+	 * @example
+	 *	$file = array('name'=>array('patrolFile'=>'Patrol.json', 'type'=>array('patrolFile'=>'application/octet-stream'));
+	 *	$this->arrayFlatten($file, 'patrolFile');
+	 *	// array('name'=>'Patrol.json', 'type'=>'application/octet-stream');
+	 *
+	 * @param	array	$subject
+	 * @param	string	$subKey
+	 * @return	array
+	 */
+	protected function arrayFlatten(array $subject=array(), $subKey='')
+	{
+		$flat = array();
+
+		if (count($subject))
+		{
+			foreach ($subject as $key => $val)
+			{
+				if (is_array($val))
+				{
+					$val = $this->get($subKey, $val);
+				}
+
+				$flat[$key] = $val;
+			}
+		}
+
+		return $flat;
 	}
 }

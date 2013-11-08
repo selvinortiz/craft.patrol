@@ -4,10 +4,10 @@ namespace Craft;
 /**
  * @=Patrol
  *
- * Patrol simplifies maintenance mode and SSL management on sites built with Craft
+ * Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.2
+ * @version		0.9.3
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -17,8 +17,8 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.2',
-		'description'	=> 'Patrol simplifies maintenance mode and SSL management on sites built with Craft',
+		'version'		=> '0.9.3',
+		'description'	=> 'Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
 			'website'	=> 'http://selv.in'
@@ -30,9 +30,17 @@ class PatrolPlugin extends BasePlugin
 		craft()->patrol->watch($this->getSettings());
 	}
 
-	public function getName($realName=false)
+	public function getName($getRealName=false)
 	{
-		return $realName ? Craft::t($this->metadata['plugin']) : $this->getPluginAlias($this->metadata['plugin']);
+		$name	= $this->metadata['plugin'];	// No translation!
+		$alias	= Craft::t($this->getSettings()->pluginAlias);
+
+		if ($getRealName)
+		{
+			return $name;
+		}
+
+		return empty($alias) ? $name : $alias;
 	}
 
 	public function getVersion()		{ return $this->metadata['version']; }
@@ -95,41 +103,26 @@ class PatrolPlugin extends BasePlugin
 	}
 
 	/**
-	 * Prepare setting for save to db
+	 * Prepare setting to save to db
 	 *
-	 * @todo	Remove isset() logic when onAfterInstall() support for services is fixed
+	 * @since	Craft 1.3 build 2415 (required)
 	 * @param	array	$settings
 	 * @return	array
 	 */
 	public function prepSettings($settings=array())
 	{
-		if (isset(craft()->patrol_settings))
-		{
-			return craft()->patrol_settings->prepare($settings);
-		}
-		else
-		{
-			return Patrol_SettingsService::doPrepare($settings);
-		}
+		return craft()->patrol_settings->prepare($settings);
 	}
 
 	/**
 	 * Saves default settings from /Patrol.json after installation
 	 *
-	 * @todo	Remove static call when craft()->patrol_settings->save() becomes available
+	 * @since	Craft 1.3 build 2415 (required)
 	 */
 	public function onAfterInstall()
 	{
-		if (isset(craft()->patrol_settings))
-		{
-			craft()->patrol_settings->save();
-		} else
-		{
-			if (class_exists(__NAMESPACE__.'\\Patrol_SettingsService'))
-			{
-				Patrol_SettingsService::doSave();
-			}
-		}
+		craft()->patrol_settings->save();
+		craft()->request->redirect(sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger')));
 	}
 
 	protected function includeResources()
@@ -155,7 +148,8 @@ class PatrolPlugin extends BasePlugin
 		$patrolStatus	= !craft()->config->get('devMode') && ($settings->maintenanceMode || $settings->forceSsl) ? 'On Duty' : 'Off Duty';
 
 		return array(
-			'name'			=> $this->getName(),
+			'name'			=> $this->getName(true),
+			'alias'			=> $this->getName(),
 			'status'		=> $patrolStatus,
 			'version'		=> $this->getVersion(),
 			'description'	=> $this->getDescription(),
@@ -164,15 +158,7 @@ class PatrolPlugin extends BasePlugin
 			'exportUrl'		=> $baseCpUrl.'/patrol/exportSettings',
 			'hasCpRule'		=> craft()->patrol->hasCpRule($settings),
 			'hasIpRule'		=> craft()->patrol->hasIpRule($settings),
-			'devMode'		=> craft()->config->get('devMode'),
 			'requestingIp'	=> craft()->patrol->getRequestingIp()
 		);
-	}
-
-	protected function getPluginAlias($default='')
-	{
-		$alias = $this->getSettings()->pluginAlias;
-
-		return empty($alias) ? Craft::t($default) : $alias;
 	}
 }

@@ -11,7 +11,7 @@ class PatrolController extends BaseController
 
 		if (!craft()->patrol_settings->export())
 		{
-			craft()->userSession->setError('Unable to export settings to JSON');
+			craft()->userSession->setError('Patrol: '.Craft::t('Unable to export settings to JSON'));
 			$this->redirectToPatrol();
 		}
 	}
@@ -23,11 +23,19 @@ class PatrolController extends BaseController
 
 		if (craft()->patrol_settings->import())
 		{
-			craft()->userSession->setNotice('Patrol settings saved successfully');
+			craft()->userSession->setNotice('Patrol: '.Craft::t('Settings saved successfully'));
 		}
 		else
 		{
-			craft()->userSession->setError('Unable to save settings');
+			if (craft()->patrol->hasWarnings('jsonDecoding'))
+			{
+				craft()->userSession->setError('Patrol: '.Craft::t(craft()->patrol->getWarning('jsonDecoding')));
+			}
+			else
+			{
+				craft()->userSession->setError('Patrol: '.Craft::t('Unable to import settings'));
+			}
+
 		}
 
 		$this->redirectToPatrol();

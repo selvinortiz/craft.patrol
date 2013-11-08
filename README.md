@@ -1,10 +1,13 @@
 ![Patrol](resources/etc/patrol.png)
 
-## Patrol 0.9.2
-Patrol simplifies **maintenance mode** and **SSL** management on sites built with [Craft](http://buildwithcraft.com)
+## Patrol 0.9.3
+Patrol simplifies **maintenance mode** and **SSL enforcement** for sites built with [Craft](http://buildwithcraft.com)
 
 ### TL;DR
 ![Patrol](resources/etc/features.png)
+
+### Requirements
+- Craft 1.3 build 2415
 
 ### FAQ
 
