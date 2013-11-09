@@ -51,7 +51,7 @@ Thank you for helping me out, you will be the first to get the production ready 
 
 Please keep the following in mind as you test Patrol...
 
-- Download the [Latest Release](https://github.com/selvinortiz/craft-patrol/releases/tag/v0.9.3) rather than cloning the repo
+- Download the [Latest Release](https://github.com/selvinortiz/craft-patrol/releases/tag/v0.9.4) rather than cloning the repo
 - Do not distribute the source code without approval from yours truly
 - Report all bugs and/or questionable features directly to me or by creating an issue within this repo
 - Get in touch with me via twitter [@selvinortiz](http://twitter.com/selvinortiz) or via email selvin@selvin.co
