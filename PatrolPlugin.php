@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.3
+ * @version		0.9.4
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -17,7 +17,7 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.3',
+		'version'		=> '0.9.4',
 		'description'	=> 'Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
