@@ -188,17 +188,15 @@ class PatrolService extends BaseApplicationComponent
 	{
 		if (empty($redirectTo))
 		{
-			$this->renderDefaultSplash();
+			$this->runDefaultBehavior();
 		}
 
 		craft()->request->redirect($redirectTo);
 	}
 
-	protected function renderDefaultSplash()
+	protected function runDefaultBehavior()
 	{
-		echo craft()->templates->renderString(IOHelper::getFileContents(craft()->path->getPluginsPath().'patrol/templates/_down.html'));
-		craft()->end();
-		// throw new HttpException(403);
+		throw new HttpException(403);
 	}
 
 	protected function forceSsl()

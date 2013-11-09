@@ -1,6 +1,6 @@
 ![Patrol](resources/etc/patrol.png)
 
-## Patrol 0.9.3
+## Patrol 0.9.4
 Patrol simplifies **maintenance mode** and **SSL enforcement** for sites built with [Craft](http://buildwithcraft.com)
 
 ### TL;DR
@@ -18,8 +18,8 @@ Patrol simplifies **maintenance mode** and **SSL enforcement** for sites built w
 - Logged in users with **admin** permissions have full access by default
 
 ##### How do I authorize [BeanStalk](http://beanstalkapp.com) so I can deploy if maintenance mode is enabled?
-- Find the IP range for **BeanStalk** or any other service: `50.31.189.108 – 50.31.189.122`
-- Add a partial IP to the _Authorized List_: `50.31.189.1 or 50.31.189.1**`
+1. Find the IP range for **BeanStalk** or any other service: `50.31.189.108 – 50.31.189.122`
+2. Add a partial IP to the _Authorized List_: `50.31.189.1 or 50.31.189.1**`
 
 ##### Will IP authentication work if my site is behind [CloudFlare](http://cloudflare.com)?
 - **Yes**, CloudFlare provides the user's IP via a header that Patrol understands
@@ -42,16 +42,16 @@ Patrol simplifies **maintenance mode** and **SSL enforcement** for sites built w
 - You can add the section URL `/members` and URLs on that scope will be restricted
 
 ### Notes
-1. The CP is accessible even if **maintenance mode** is turned on to avoid lockouts
-3. Patrol will go **off duty** if **devMode** is turned on regardless of its settings
-4. Settings are exported in `JSON` format
+- If no **maintenance URL** is set, Patrol will default to throwing a **403**
+- The CP is accessible even if **maintenance mode** is turned on to avoid lockouts
+- Settings are exported in `JSON` format
 
 ### Beta Testers
-Thank you so much for helping me out with Patrol, you will be among the first to get the production ready version.
+Thank you for helping me out, you will be the first to get the production ready version.
 
 Please keep the following in mind as you test Patrol...
 
-1. Download the [Latest Release](https://github.com/selvinortiz/craft-patrol/releases/tag/v0.9.3) rather than cloning the repo
-2. Do not distribute the source code without approval from yours truly
-3. Report all bugs and/or questionable features directly to me or by creating an issue within this repo
-4. Get in touch with me via twitter [@selvinortiz](http://twitter.com/selvinortiz) or via email selvin@selvin.co
+- Download the [Latest Release](https://github.com/selvinortiz/craft-patrol/releases/tag/v0.9.3) rather than cloning the repo
+- Do not distribute the source code without approval from yours truly
+- Report all bugs and/or questionable features directly to me or by creating an issue within this repo
+- Get in touch with me via twitter [@selvinortiz](http://twitter.com/selvinortiz) or via email selvin@selvin.co

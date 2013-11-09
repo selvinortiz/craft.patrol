@@ -2,7 +2,7 @@
 	"metadata": {
 		"exportedFrom": "Selvin Ortiz",
 		"exportedAt": {
-			"date": "2013-11-06 23:41:35",
+			"date": "2013-11-08 22:19:31",
 			"timezone_type": 3,
 			"timezone": "UTC"
 		},
@@ -10,11 +10,16 @@
 	},
 	"settings": {
 		"maintenanceMode": "1",
-		"maintenanceUrl": "",
-		"authorizedIps": "",
-		"forceSsl": "",
-		"restrictedAreas": "",
+		"maintenanceUrl": "\/down",
+		"authorizedIps": [
+			"127.0.0.1"
+		],
+		"forceSsl": "1",
+		"restrictedAreas": [
+			"\/{cpTrigger}",
+			"\/members"
+		],
 		"enableCpTab": "1",
-		"pluginAlias": "Patrol"
+		"pluginAlias": "Security"
 	}
 }
