@@ -4,22 +4,18 @@
 	<div id="patrolSettings">
 		<h2>{{ name }} <span class="subtle">V{{ version }} {% if alias != name %}AKA ({{ alias }}){% endif %}</span></h2>
 		<p>
-			{{ description }}
+			Patrol simplifies <strong>maintenance mode</strong> and <strong>secure connections</strong> for sites built with
+			<a href="http://buildwithcraft.com" title="Craft CMS">Craft</a>
 		</p>
 		<div class="patrolSection">
-			<h3 class="ico maintenance">Maintenance Settings</h3>
-			<input type="hidden" name="return" value="{{ cpUrl('settings/plugins/patrol') }}">
+			<input type="hidden" id="patrolReturn" value="settings/plugins/patrol">
+			<h3 class="ico maintenance">Maintenance Mode</h3>
 			{{
-				forms.checkboxField({
-					id:				"maintenanceMode",
-					name:			"maintenanceMode",
-					label:			"Enable Maintenance Mode"|t,
-					instructions:	"Redirects traffic to the <strong>maintenance URL</strong> except authorized users."|t,
-					value:			1,
-					checked:		settings.maintenanceMode,
-					first:			true,
-					autofocus:		true,
-					errors:			""
+				forms.lightswitch({
+					onLabel:	"On",
+					offLabel:	"Off",
+					name:		"maintenanceMode",
+					on:			settings.maintenanceMode
 				})
 			}}
 			{{
@@ -28,7 +24,7 @@
 					name:			"maintenanceUrl",
 					label:			"Maintenance URL"|t,
 					placeholder:	"/maintenance",
-					instructions:	"The URL to redirect traffic to if <strong>maintenance mode</strong> is enabled."|t,
+					instructions:	"The URL to redirect <strong>unauthorized</strong> traffic to if maintenance mode is <strong>ON</strong>"|t,
 					value:			settings.maintenanceUrl,
 					errors:			""
 				})
@@ -40,27 +36,24 @@
 					rows:			6,
 					class:			"code",
 					label:			"Authorized IPs"|t,
-					placeholder:	"127.0.0.1",
-					instructions:	"Defines the <strong>IPs</strong> that should be granted access when <strong>maintenance mode</strong> is enabled."|t,
+					placeholder:	"127.0.0.*",
+					instructions:	"The <strong>IP addresses</strong> to grant access to when maintenance mode is <strong>ON</strong>"|t,
 					value:			settings.authorizedIps,
 					errors:			""
 				})
 			}}
 			<input type="hidden" id="requestingIp" name="requestingIp" value="{{ requestingIp }}"/>
-			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Authorize My IP">Authorize My IP</a>
+			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Add My IP">Add My IP</a>
 		</div>
 
 		<div class="patrolSection">
-			<h3 class="ico security">Security Settings</h3>
+			<h3 class="ico security">Secure Connections</h3>
 			{{
-				forms.checkboxField({
-					id:				"forceSsl",
-					name:			"forceSsl",
-					label:			"Enable Secured Connections"|t,
-					instructions:	"Forces connections over <strong>SSL/HTTPS</strong> on restricted areas."|t,
-					value:			1,
-					checked:		settings.forceSsl,
-					errors:			""
+				forms.lightswitch({
+					onLabel:	"On",
+					offLabel:	"Off",
+					name:		"forceSsl",
+					on:			settings.forceSsl
 				})
 			}}
 			{{
@@ -69,28 +62,24 @@
 					name:			"restrictedAreas",
 					rows:			6,
 					class:			"code",
-					label:			"Restricted Areas"|t,
+					label:			"Protected Areas"|t,
 					placeholder:	"/members",
-					instructions:	"Defines the areas where <strong>SSL/HTTPS</strong> should be enforced, which defaults to <strong>sitewide</strong> if left empty."|t,
+					instructions:	"The areas where <strong>HTTPS</strong> should be enforced if secure connections is <strong>ON</strong>"|t,
 					value:			settings.restrictedAreas,
 					errors:			""
 				})
 			}}
 			<input type="hidden" id="cpRule" name="cpRule" value="/{cpTrigger}"/>
-			<a href="#" id="addCpRule" class="btn icon add {{ hasCpRule ? 'disabled' : '' }}" title="Secure The CP">Secure The CP</a>
+			<a href="#" id="addCpRule" class="btn icon add {{ hasCpRule ? 'disabled' : '' }}" title="Add the control panel to restricted areas">Add Control Panel</a>
 		</div>
 
 		<div class="patrolSection">
 			<h3 class="ico settings">Plugin Settings</h3>
+			<p>Display Plugin Tab?</p>
 			{{
-				forms.checkboxField({
-					id:				"enableCpTab",
-					name:			"enableCpTab",
-					label:			"Enable CP Tab"|t,
-					instructions:	"Toggles display of the <strong>["~alias~"]</strong> CP tab on the main menu atop."|t,
-					value:			1,
-					checked:		settings.enableCpTab,
-					errors:			""
+				forms.lightswitch({
+					name:		"enableCpTab",
+					on:			settings.enableCpTab
 				})
 			}}
 			{{
@@ -98,7 +87,7 @@
 					id:				"pluginAlias",
 					name:			"pluginAlias",
 					label:			"Plugin Alias"|t,
-					instructions:	"Updates the label displayed on the <strong>["~alias~"]</strong> CP tab if enabled and on the /admin/settings/plugins listing."|t,
+					instructions:	"Allows you to rename <strong>"~name~"</strong> to something more meaningful while retaining its name internally."|t,
 					value:			alias,
 					errors:			""
 				})

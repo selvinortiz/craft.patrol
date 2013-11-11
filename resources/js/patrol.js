@@ -29,11 +29,19 @@ var Patrol = Patrol || {
 	},
 	disableFormElement: function(element) {
 		element.addClass("disabled");
+	},
+	addPatrolRedirect: function() {
+		var patrolRedirect = $("#patrolReturn").val();
+
+		if (typeof patrolRedirect == "string" && patrolRedirect.length) {
+			$("[name=redirect]").val(patrolRedirect);
+		}
 	}
 };
 
 (function() {
 	if (typeof $ == "object" || typeof $ == "function") {
+		Patrol.addPatrolRedirect();
 		Patrol.requestingIpButton.on("click", function(e) {
 			Patrol.addRequestingIp(e);
 			e.preventDefault();
@@ -42,14 +50,14 @@ var Patrol = Patrol || {
 			Patrol.addCpRule(e);
 			e.preventDefault();
 		});
-		Patrol.restrictedAreas.on("focus change", function(e) {
+		Patrol.restrictedAreas.on("focus keyup", function(e) {
 			if (Patrol.hasCpRule()) {
 				Patrol.disableFormElement(Patrol.cpRuleButton);
 			} else {
 				Patrol.enableFormElement(Patrol.cpRuleButton);
 			}
 		});
-		Patrol.authorizedIps.on("focus change", function(e) {
+		Patrol.authorizedIps.on("focus keyup", function(e) {
 			if (Patrol.hasRequestingIp()) {
 				Patrol.disableFormElement(Patrol.requestingIpButton);
 			} else {

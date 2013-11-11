@@ -16,24 +16,13 @@ class Patrol_SettingsService extends BaseApplicationComponent
 	 */
 	public function prepare(array $settings=array())
 	{
-		$authorizedIps		= $this->get('authorizedIps', $settings);
-		$restrictedAreas	= $this->get('restrictedAreas', $settings);
+		$settings['maintenanceMode']	= (bool) $settings['maintenanceMode'];
+		$settings['forceSsl']			= (bool) $settings['forceSsl'];
+		$settings['enableCpTab']		= (bool) $settings['enableCpTab'];
+		$settings['authorizedIps']		= $settings['authorizedIps'] ? $this->parseIps($settings['authorizedIps']) : array();
+		$settings['restrictedAreas']	= $settings['restrictedAreas'] ? $this->parseAreas($settings['restrictedAreas']) : array();
 
-		if ($authorizedIps)
-		{
-			$authorizedIps = $this->parseIps($authorizedIps);
-
-			$settings['authorizedIps'] = empty($authorizedIps) ? '' : $authorizedIps;
-		}
-
-		if ($restrictedAreas)
-		{
-			$restrictedAreas = $this->parseAreas($restrictedAreas);
-
-			$settings['restrictedAreas'] = empty($restrictedAreas) ? '' : $restrictedAreas;
-		}
-
-		if (empty($this->warnings))
+		if (!craft()->patrol->hasWarnings())
 		{
 			return $settings;
 		}
@@ -41,17 +30,9 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 	public function export()
 	{
-		$exportInfo = array(
-			'metadata'			=> array(
-				'exportedFrom'	=> Craft::getSiteName(),
-				'exportedAt'	=> DateTimeHelper::currentUTCDateTime(),
-				'exportedBy'	=> craft()->getUser()->getName()
-			)
-		);
-
 		$settings	= craft()->plugins->getPlugin('patrol')->getSettings();
-		$settings 	= $settings->getAttributes();
-		$json		= json_encode(array_merge($exportInfo, array('settings'=>$settings)));
+		$settings	= $settings->getAttributes();
+		$json		= json_encode($settings);
 
 		if (json_last_error() == JSON_ERROR_NONE)
 		{
@@ -92,9 +73,9 @@ class Patrol_SettingsService extends BaseApplicationComponent
 		$jsonObject	= json_decode($jsonString);
 
 		// @todo	Beef up settings validation from file
-		if (json_last_error() == JSON_ERROR_NONE && isset($jsonObject->settings))
+		if (json_last_error() == JSON_ERROR_NONE && is_object($jsonObject))
 		{
-			return craft()->plugins->savePluginSettings(craft()->plugins->getPlugin('patrol'), get_object_vars($jsonObject->settings));
+			return craft()->plugins->savePluginSettings(craft()->plugins->getPlugin('patrol'), get_object_vars($jsonObject));
 		}
 
 		craft()->patrol->addWarning($this->getJsonMessage(), 'jsonDecoding');
@@ -248,7 +229,7 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 			if (!$valid)
 			{
-				$patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
+				craft()->patrol->warnings['restrictedAreas'] = 'Please use valid URL with optional dynamic parameters like: /{cpTrigger}';
 
 				return false;
 			}
@@ -284,7 +265,7 @@ class Patrol_SettingsService extends BaseApplicationComponent
 
 	protected function getSettingsFile()
 	{
-		return __DIR__.'/../patrol.json';
+		return craft()->path->getConfigPath().'patrol/Settings.json';
 	}
 
 	protected function getFileContent($path='', $restrictTo='text/plain')

@@ -4,10 +4,10 @@ namespace Craft;
 /**
  * @=Patrol
  *
- * Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft
+ * Patrol simplifies maintenance mode and secure connections for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.4
+ * @version		0.9.5
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -17,8 +17,8 @@ class PatrolPlugin extends BasePlugin
 {
 	protected $metadata	= array(
 		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.4',
-		'description'	=> 'Patrol simplifies maintenance mode and SSL enforcement for sites built with Craft',
+		'version'		=> '0.9.5',
+		'description'	=> 'Patrol simplifies maintenance mode and secure connections for sites built with Craft',
 		'developer'		=> array(
 			'name'		=> 'Selvin Ortiz',
 			'website'	=> 'http://selv.in'
@@ -53,23 +53,34 @@ class PatrolPlugin extends BasePlugin
 
 	public function hasCpSection()		{ return (bool) $this->getSettings()->enableCpTab; }
 
+	/**
+	 * @property	bool	$maintenanceMode
+	 * @property	string	$maintenanceUrl
+	 * @property	array	$authorizedIps
+	 * @property	bool	$forceSsl
+	 * @property	array	$restrictedAreas
+	 * @property	bool	$enableCpTab
+	 * @property	string	$pluginAlias
+	 *
+	 * @return	array
+	 */
 	public function defineSettings()
 	{
 		return array(
-			'maintenanceMode'	=> array( AttributeType::Bool ),
-			'maintenanceUrl'	=> array( AttributeType::String ),
-			'authorizedIps'		=> array( AttributeType::Mixed ),
-			'forceSsl'			=> array( AttributeType::Bool ),
-			'restrictedAreas'	=> array( AttributeType::Mixed ),
-			'enableCpTab'		=> array( AttributeType::Bool ),
-			'pluginAlias'		=> array( AttributeType::String ),
+			'maintenanceMode'	=> AttributeType::Bool,
+			'maintenanceUrl'	=> AttributeType::String,
+			'authorizedIps'		=> AttributeType::Mixed,
+			'forceSsl'			=> AttributeType::Bool,
+			'restrictedAreas'	=> AttributeType::Mixed,
+			'enableCpTab'		=> AttributeType::Bool,
+			'pluginAlias'		=> AttributeType::String
 		);
 	}
 
 	/**
 	 * Extends getSettings() to handle formatting for template use
 	 *
-	 * @param	bool	$templateReady	Whether or not settings should be formatted for template use
+	 * @param	bool	$templateReady	Format for template use?
 	 * @return	Model
 	 */
 	public function getSettings($templateReady=false)
@@ -81,12 +92,12 @@ class PatrolPlugin extends BasePlugin
 			$authorizedIps		= $settingsModel->getAttribute('authorizedIps');
 			$restrictedAreas	= $settingsModel->getAttribute('restrictedAreas');
 
-			if (is_array($authorizedIps) && count($authorizedIps))
+			if (is_array($authorizedIps))
 			{
 				$settingsModel->setAttribute('authorizedIps', implode(PHP_EOL, $authorizedIps));
 			}
 
-			if (is_array($restrictedAreas) && count($restrictedAreas))
+			if (is_array($restrictedAreas))
 			{
 				$settingsModel->setAttribute('restrictedAreas', implode(PHP_EOL, $restrictedAreas));
 			}
@@ -145,7 +156,7 @@ class PatrolPlugin extends BasePlugin
 	{
 		$settings		= $this->getSettings();
 		$baseCpUrl		= sprintf('/%s/%s/', craft()->config->get('cpTrigger'), craft()->config->get('actionTrigger'));
-		$patrolStatus	= !craft()->config->get('devMode') && ($settings->maintenanceMode || $settings->forceSsl) ? 'On Duty' : 'Off Duty';
+		$patrolStatus	= ($settings->maintenanceMode || $settings->forceSsl) ? 'On Duty' : 'Off Duty';
 
 		return array(
 			'name'			=> $this->getName(true),
