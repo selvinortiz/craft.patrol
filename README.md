@@ -12,7 +12,7 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 3. Adjust file permissions as necessary
 
 ### Default Settings
-You can tell **Patrol** to load default settings on installation by placing a `Settings.json` file in your `craft/config/patrol` directory.
+You can tell **Patrol** to load default settings on installation by placing a `Settings.json` file _(sample below)_ in your `craft/config/patrol` directory.
 
 ```json
 {
@@ -33,7 +33,7 @@ You can tell **Patrol** to load default settings on installation by placing a `S
 ```
 
 ### Setup
-The **FAQ** section should help you get started and the screenshot below will give you an idea of what options are available.
+The **FAQ** should get you started and the screenshot below will give you an idea of what options are available.
 
 ![Patrol Settings](resources/img/screenshot.png)
 
