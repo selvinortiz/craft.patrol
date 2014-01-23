@@ -7,7 +7,7 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 - Craft 1.3 build 2415
 
 ### Installation
-1. Download the [latest release](https://github.com/selvinortiz/craft-patrol/releases) with the following name pattern `patrol.v*.*.*.zip`
+1. Download the [latest release](https://github.com/selvinortiz/craft.patrol/releases) with the following name pattern `patrol.v*.*.*.zip`
 2. Extract the archive and place `patrol` inside your `craft/plugins` directory
 3. Adjust file permissions as necessary
 
