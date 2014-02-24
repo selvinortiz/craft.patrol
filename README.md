@@ -1,7 +1,28 @@
 ![Patrol](resources/img/patrol.png)
 
-## Patrol 0.9.5
+## Patrol 0.9.6
+*by* [Selvin Ortiz](http://twitter.com/selvinortiz)
+
+----
+### Description
 Patrol simplifies **maintenance mode** and **secure connections** for sites built with [Craft](http://buildwithcraft.com)
+
+Giving you fine grain control over your **force SSL** settings and the easy to set up **down for maintenance** workflow.
+
+----
+### Features
+- Handle maintenance mode with ease
+- Force SSL on specific pages, areas, or globally
+- Uses IP based authentication to bypass maintenance mode
+- Allows IP based authentication even if behind *CloudFlare*
+- Allows logged in admins to bypass maintenance mode
+- Disable SSL per environment by adding a *patrolSettings* array with `forceSsl` set to `false` to your `general.php`
+
+----
+### Download Notes
+You must download the [latest release](https://github.com/selvinortiz/craft.patrol/releases) with the following name pattern `patrol.v*.*.*.zip`
+
+The official release is the only distribution meant for production and it is required when requesting support or reporting a bug.
 
 ### Requirements
 - Craft 1.3 build 2415
@@ -10,27 +31,6 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 1. Download the [latest release](https://github.com/selvinortiz/craft.patrol/releases) with the following name pattern `patrol.v*.*.*.zip`
 2. Extract the archive and place `patrol` inside your `craft/plugins` directory
 3. Adjust file permissions as necessary
-
-### Default Settings
-You can tell **Patrol** to load default settings on installation by placing a `Settings.json` file _(sample below)_ in your `craft/config/patrol` directory.
-
-```json
-{
-	"maintenanceMode": true,
-	"maintenanceUrl": "\/down",
-	"authorizedIps": [
-		"127.0.0.1",
-		"192.168.0.*"
-	],
-	"forceSsl": true,
-	"restrictedAreas": [
-		"\/{cpTrigger}",
-		"\/members"
-	],
-	"enableCpTab": true,
-	"pluginAlias": "Patrol"
-}
-```
 
 ### Setup
 The **FAQ** should get you started and the screenshot below will give you an idea of what options are available.
@@ -71,7 +71,7 @@ The **FAQ** should get you started and the screenshot below will give you an ide
 ### Help & Feedback
 If you have questions, comments, or concerns feel free to reach out to me on twitter [@selvinortiz](http://twitter.com/selvinortiz)
 
-### Licence
-**Patrol** is open source software licensed under the [MIT License](http://opensource.org/licenses/MIT)
+### License
+**Patrol** for _craft_ is open source software licensed under the [MIT License](http://opensource.org/licenses/MIT)
 
 ![Open Source Initiative](resources/img/osilogo.png)

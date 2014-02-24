@@ -27,7 +27,7 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	public function protect(Model $settings)
 	{
-		if ($settings->getAttribute('forceSsl'))
+		if ($settings->getAttribute('forceSsl') && $this->getEnvSetting('foreceSsl'))
 		{
 			$requestedUrl		= craft()->request->getUrl();
 			$restrictedAreas	= $settings->getAttribute('restrictedAreas');
@@ -227,6 +227,18 @@ class PatrolService extends BaseApplicationComponent
 		}
 
 		return $str;
+	}
+
+	protected function getEnvSetting($name, $default=false)
+	{
+		$env = craft()->config->get('patrolSettings');
+
+		if ($env && is_array($env))
+		{
+			return array_key_exists($name, $env);
+		}
+
+		return $default;
 	}
 
 	protected function getDynamicParams()
