@@ -8,8 +8,6 @@
 *.html	text
 *.twig	text
 *.php	text
-Guardfile	text
-
 *.ai	binary
 *.zip	binary
 *.png	binary

@@ -4,65 +4,95 @@ namespace Craft;
 /**
  * @=Patrol
  *
- * Patrol simplifies maintenance mode and secure connections for sites built with Craft
+ * Patrol simplifies maintenance and security for sites built with Craft
  *
- * @author		Selvin Ortiz <selvin@selv.in>
- * @version		0.9.6
+ * @author		Selvin Ortiz <selvin@selvin.co>
+ * @version		0.9.7
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
+ * --
+ * @property	bool	$maintenanceMode	Whether maintenance mode is on (offline)
+ * @property	string	$maintenanceUrl		The URL/template to redirect to when maintenance mode is on
+ * @property	array	$authorizedIps		The list of IP addresses that bypass maintenance mode
+ * @property	bool	$forceSsl			Whether force SSL mode is on (https)
+ * @property	array	$restrictedAreas	The list or sections that should be restricted when force SSL mode is on
+ * @property	bool	$enableCpTab		Whether the Control Panel tab for Patrol is display
+ * @property	string	$pluginAlias		The name that Patrol was renamed to by the user after installation
  */
 
 class PatrolPlugin extends BasePlugin
 {
-	protected $metadata	= array(
-		'plugin'		=> 'Patrol',
-		'version'		=> '0.9.6',
-		'description'	=> 'Patrol simplifies maintenance mode and secure connections for sites built with Craft',
-		'developer'		=> array(
-			'name'		=> 'Selvin Ortiz',
-			'website'	=> 'http://selv.in'
-		)
-	);
-
-	public function init()
-	{
-		craft()->patrol->watch($this->getSettings());
-	}
-
-	public function getName($getRealName=false)
-	{
-		$name	= $this->metadata['plugin'];	// No translation!
-		$alias	= Craft::t($this->getSettings()->pluginAlias);
-
-		if ($getRealName)
-		{
-			return $name;
-		}
-
-		return empty($alias) ? $name : $alias;
-	}
-
-	public function getVersion()		{ return $this->metadata['version']; }
-
-	public function getDescription()	{ return $this->metadata['description']; }
-
-	public function getDeveloper()		{ return $this->metadata['developer']['name']; }
-
-	public function getDeveloperUrl()	{ return $this->metadata['developer']['website']; }
-
-	public function hasCpSection()		{ return (bool) $this->getSettings()->enableCpTab; }
+	/**
+	 * @var array The raw settings model attributes
+	 */
+	protected $settings;
 
 	/**
-	 * @property	bool	$maintenanceMode
-	 * @property	string	$maintenanceUrl
-	 * @property	array	$authorizedIps
-	 * @property	bool	$forceSsl
-	 * @property	array	$restrictedAreas
-	 * @property	bool	$enableCpTab
-	 * @property	string	$pluginAlias
+	 * @var array The settings configured via the general environment config which take priority
+	 */
+	protected $configs;
+
+	/**
+	 * Loads the general environment configs and merges them with the raw settings model attributes
+	 * This allows us to fully configure Patrol via the multiple environment configuration
+	 */
+	public function init()
+	{
+		$this->configs	= craft()->config->get('patrol');
+		$this->settings	= array_merge($this->getSettings()->getAttributes(), $this->configs ? $this->configs : array());
+
+		patrol()->watch($this->settings);
+	}
+
+	/**
+	 * Returns the real name of the plugin or the plugin alias given by the user after installation
 	 *
-	 * @return	array
+	 * @param bool $real
+	 *
+	 * @return string
+	 */
+	public function getName($real=false)
+	{
+		$alias	= $this->settings['pluginAlias'];
+
+		return ($real || empty($alias)) ? 'Patrol' : $alias;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getVersion()
+	{
+		return '0.9.7';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDeveloper()
+	{
+		return 'Selvin Ortiz';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDeveloperUrl()
+	{
+		return 'http://selvinortiz.com';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasCpSection()
+	{
+		return (bool) $this->settings['enableCpTab'];
+	}
+
+	/**
+	 * @return array
 	 */
 	public function defineSettings()
 	{
@@ -73,103 +103,69 @@ class PatrolPlugin extends BasePlugin
 			'forceSsl'			=> AttributeType::Bool,
 			'restrictedAreas'	=> AttributeType::Mixed,
 			'enableCpTab'		=> AttributeType::Bool,
-			'pluginAlias'		=> AttributeType::String
+			'pluginAlias'		=> AttributeType::String,
 		);
 	}
 
 	/**
-	 * Extends getSettings() to handle formatting for template use
-	 *
-	 * @param	bool	$templateReady	Format for template use?
-	 * @return	Model
+	 * @return bool Whether rendering was successful
 	 */
-	public function getSettings($templateReady=false)
-	{
-		$settingsModel = parent::getSettings();
-
-		if ($templateReady)
-		{
-			$authorizedIps		= $settingsModel->getAttribute('authorizedIps');
-			$restrictedAreas	= $settingsModel->getAttribute('restrictedAreas');
-
-			if (is_array($authorizedIps))
-			{
-				$settingsModel->setAttribute('authorizedIps', implode(PHP_EOL, $authorizedIps));
-			}
-
-			if (is_array($restrictedAreas))
-			{
-				$settingsModel->setAttribute('restrictedAreas', implode(PHP_EOL, $restrictedAreas));
-			}
-		}
-
-		return $settingsModel;
-	}
-
 	public function getSettingsHtml()
 	{
-		$this->includeResources();
+		$settings	= $this->settings;
 
-		return craft()->templates->render('patrol/_settings', $this->getTemplateVars());
+		craft()->templates->includeCssResource('patrol/css/patrol.css');
+		craft()->templates->includeJsResource('patrol/js/patrol.js');
+
+		if (is_array($settings['authorizedIps']))
+		{
+			$settings['authorizedIps'] = implode(PHP_EOL, $settings['authorizedIps']);
+		}
+
+		if (is_array($settings['restrictedAreas']))
+		{
+			$settings['restrictedAreas'] = implode(PHP_EOL, $settings['restrictedAreas']);
+		}
+
+		$variables		= array(
+			'name'		=> $this->getName(true),
+			'alias'		=> $this->getName(),
+			'status'	=> $this->settings['maintenanceMode'] || $this->settings['forceSsl'] ? 'On Duty' : 'Off Duty',
+			'version'	=> $this->getVersion(),
+			'settings'	=> $settings,
+			'configs'	=> $this->configs,
+		);
+
+		return craft()->templates->render('patrol/_settings', $variables);
 	}
 
 	/**
-	 * Prepare setting to save to db
+	 * Prepares plugin settings prior to saving them to the db
+	 *	- authorizedIps are converted from string to array
+	 *	- restrictedAreas are converted from string to array
 	 *
-	 * @since	Craft 1.3 build 2415 (required)
-	 * @param	array	$settings
-	 * @return	array
+	 * @param array $settings
+	 *
+	 * @return array
 	 */
 	public function prepSettings($settings=array())
 	{
-		return craft()->patrol_settings->prepare($settings);
-	}
+		$settings['forceSsl']			= (bool) craft()->request->getPost('settings.forceSsl', $this->settings['forceSsl']);
+		$settings['enableCpTab']		= (bool) craft()->request->getPost('settings.enableCpTab', $this->settings['enableCpTab']);
+		$settings['maintenanceMode']	= (bool) craft()->request->getPost('settings.maintenanceMode', $this->settings['maintenanceMode']);
+		$settings['authorizedIps']		= patrol()->parseAuthorizedIps(craft()->request->getPost('settings.authorizedIps', $this->settings['authorizedIps']));
+		$settings['restrictedAreas']	= patrol()->parseRestrictedAreas(craft()->request->getPost('settings.restrictedAreas', $this->settings['restrictedAreas']));
 
-	/**
-	 * Saves default settings from /Patrol.json after installation
-	 *
-	 * @since	Craft 1.3 build 2415 (required)
-	 */
-	public function onAfterInstall()
-	{
-		craft()->patrol_settings->save();
-		craft()->request->redirect(sprintf('/%s/settings/plugins/patrol', craft()->config->get('cpTrigger')));
+		return $settings;
 	}
+}
 
-	protected function includeResources()
-	{
-		// @todo	Migrate to production mode only on next major update
-		if (craft()->config->get('devMode'))
-		{
-			craft()->templates->includeCssResource('patrol/css/patrol.css');
-			craft()->templates->includeJsResource('patrol/js/mousetrap.js');
-			craft()->templates->includeJsResource('patrol/js/patrol.js');
-		}
-		else
-		{
-			craft()->templates->includeCssResource('patrol/min/patrol.css');
-			craft()->templates->includeJsResource('patrol/min/patrol.js');
-		}
-	}
-
-	protected function getTemplateVars()
-	{
-		$settings		= $this->getSettings();
-		$baseCpUrl		= sprintf('/%s/%s/', craft()->config->get('cpTrigger'), craft()->config->get('actionTrigger'));
-		$patrolStatus	= ($settings->maintenanceMode || $settings->forceSsl) ? 'On Duty' : 'Off Duty';
-
-		return array(
-			'name'			=> $this->getName(true),
-			'alias'			=> $this->getName(),
-			'status'		=> $patrolStatus,
-			'version'		=> $this->getVersion(),
-			'description'	=> $this->getDescription(),
-			'settings'		=> $this->getSettings(true),
-			'importUrl'		=> $baseCpUrl.'/patrol/importSettings',
-			'exportUrl'		=> $baseCpUrl.'/patrol/exportSettings',
-			'hasCpRule'		=> craft()->patrol->hasCpRule($settings),
-			'hasIpRule'		=> craft()->patrol->hasIpRule($settings),
-			'requestingIp'	=> craft()->patrol->getRequestingIp()
-		);
-	}
+/**
+ * Returns an instance of the Patrol service and enables proper hinting and service layer encapsulation
+ *
+ * @return PatrolService
+ */
+function patrol()
+{
+	return craft()->patrol;
 }

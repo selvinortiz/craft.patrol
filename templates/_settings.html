@@ -1,13 +1,16 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-	<div id="patrolSettings">
-		<h2>{{ name }} <span class="subtle">V{{ version }} {% if alias != name %}AKA ({{ alias }}){% endif %}</span></h2>
+	<div class="patrolSettings">
+		<h2>{{ name }}&nbsp;<span class="subtle">V{{ version }} {% if alias != name %}AKA ({{ alias }}){% endif %}</span></h2>
 		<p>
 			Patrol simplifies <strong>maintenance mode</strong> and <strong>secure connections</strong> for sites built with
 			<a href="http://buildwithcraft.com" title="Craft CMS">Craft</a>
 		</p>
 		<div class="patrolSection">
+			{% if configs|length %}
+				<h3 class="warning">Please note that some settings may be disabled if they are set in the <em>general environment configuration!</em></h3>
+			{% endif %}
 			<input type="hidden" id="patrolReturn" value="settings/plugins/patrol">
 			<h3 class="ico maintenance">Maintenance Mode</h3>
 			{{
@@ -15,7 +18,8 @@
 					onLabel:	"On",
 					offLabel:	"Off",
 					name:		"maintenanceMode",
-					on:			settings.maintenanceMode
+					on:			settings.maintenanceMode,
+					disabled:	configs.maintenanceMode is defined ? true : false
 				})
 			}}
 			{{
@@ -23,10 +27,12 @@
 					id:				"maintenanceUrl",
 					name:			"maintenanceUrl",
 					label:			"Maintenance URL"|t,
+					class:			"code",
 					placeholder:	"/maintenance",
 					instructions:	"The URL to redirect <strong>unauthorized</strong> traffic to if maintenance mode is <strong>ON</strong>"|t,
 					value:			settings.maintenanceUrl,
-					errors:			""
+					errors:			"",
+					disabled:		configs.maintenanceUrl is defined ? true : false
 				})
 			}}
 			{{
@@ -34,16 +40,15 @@
 					id:				"authorizedIps",
 					name:			"authorizedIps",
 					rows:			6,
-					class:			"code",
+					class:			configs.authorizedIps is defined ? "disabled code" : "code",
 					label:			"Authorized IPs"|t,
 					placeholder:	"127.0.0.*",
 					instructions:	"The <strong>IP addresses</strong> to grant access to when maintenance mode is <strong>ON</strong>"|t,
 					value:			settings.authorizedIps,
-					errors:			""
+					errors:			"",
+					disabled:		configs.authorizedIps is defined ? true : false
 				})
 			}}
-			<input type="hidden" id="requestingIp" name="requestingIp" value="{{ requestingIp }}"/>
-			<a href="#" id="addRequestingIp" class="btn icon add {{ hasIpRule ? 'disabled' : '' }}" title="Add My IP">Add My IP</a>
 		</div>
 
 		<div class="patrolSection">
@@ -53,7 +58,8 @@
 					onLabel:	"On",
 					offLabel:	"Off",
 					name:		"forceSsl",
-					on:			settings.forceSsl
+					on:			settings.forceSsl,
+					disabled:	configs.forceSsl is defined ? true : false
 				})
 			}}
 			{{
@@ -61,16 +67,15 @@
 					id:				"restrictedAreas",
 					name:			"restrictedAreas",
 					rows:			6,
-					class:			"code",
-					label:			"Protected Areas"|t,
+					class:			configs.restrictedAreas is defined ? "disabled code" : "code",
+					label:			"Restricted Areas"|t,
 					placeholder:	"/members",
 					instructions:	"The areas where <strong>HTTPS</strong> should be enforced if secure connections is <strong>ON</strong>"|t,
 					value:			settings.restrictedAreas,
-					errors:			""
+					errors:			"",
+					disabled:		configs.restrictedAreas is defined ? true : false
 				})
 			}}
-			<input type="hidden" id="cpRule" name="cpRule" value="/{cpTrigger}"/>
-			<a href="#" id="addCpRule" class="btn icon add {{ hasCpRule ? 'disabled' : '' }}" title="Add the control panel to restricted areas">Add Control Panel</a>
 		</div>
 
 		<div class="patrolSection">
@@ -79,7 +84,8 @@
 			{{
 				forms.lightswitch({
 					name:		"enableCpTab",
-					on:			settings.enableCpTab
+					on:			settings.enableCpTab,
+					disabled:	configs.restrictedAreas is defined ? true : false
 				})
 			}}
 			{{
@@ -89,22 +95,10 @@
 					label:			"Plugin Alias"|t,
 					instructions:	"Allows you to rename <strong>"~name~"</strong> to something more meaningful while retaining its name internally."|t,
 					value:			alias,
-					errors:			""
+					errors:			"",
+					disabled:		configs.pluginAlias is defined ? true : false
 				})
 			}}
-
-			<a class="btn" href="{{ exportUrl }}" title="Export Settings">Export Settings</a>
-			<a id="importSettingsButton" class="btn" href="#" title="Import Settings">Import Settings</a>
-		</div>
-
-		<div class="patrolSection hidden" id="importSection">
-			<div>
-				<input type="file" id="patrolFile" name="patrolFile">
-				<br><br>
-				<a id="runImportSettings" href="#" class="btn submit">Run Import</a>
-				<a id="cancelImportButton" href="#" class="btn icon delete">Cancel</a>
-			</div>
-			<p class="notice">The chosen <strong>.json</strong> file will overwrite your current setting!</p>
 		</div>
 
 		<div class="patrolSection credits">

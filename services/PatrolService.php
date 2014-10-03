@@ -1,19 +1,25 @@
 <?php
 namespace Craft;
 
+/**
+ * The core service managing security and maintenance
+ *
+ * Class PatrolService
+ *
+ * @author Selvin Ortiz <selvin@selvin.co>
+ * @package Craft
+ */
+
 class PatrolService extends BaseApplicationComponent
 {
-	protected $warnings			= array();
-	protected $dynamicParams	= null;
-	protected $exportFileName	= 'patrol.json';
-	protected $importFieldName	= 'patrolFile';
+	protected $dynamicParams;
 
 	/**
 	 * Begin watching...
 	 *
-	 * @param Model $settings
+	 * @param array $settings
 	 */
-	public function watch(Model $settings)
+	public function watch(array $settings)
 	{
 		$this->protect($settings);
 		$this->restrict($settings);
@@ -21,23 +27,25 @@ class PatrolService extends BaseApplicationComponent
 
 	/**
 	 * Forces SSL based on restrictedAreas
+	 * The environment settings take priority over those defined in the control panel
 	 *
-	 * @param	Model	$settings
-	 * @return	bool
+	 * @param array $settings
+	 *
+	 * @return bool
 	 */
-	public function protect(Model $settings)
+	public function protect(array $settings)
 	{
-		if ($settings->getAttribute('forceSsl') && $this->getEnvSetting('foreceSsl'))
+		if ($settings['forceSsl'])
 		{
 			$requestedUrl		= craft()->request->getUrl();
-			$restrictedAreas	= $settings->getAttribute('restrictedAreas');
+			$restrictedAreas	= $settings['restrictedAreas'];
 			$securedConnection	= craft()->request->isSecureConnection();
 
 			if (empty($restrictedAreas))
 			{
-				if (!$securedConnection)
+				if ($securedConnection)
 				{
-					$this->forceSsl();
+					$this->revertSsl();
 				}
 
 				return true;
@@ -51,8 +59,10 @@ class PatrolService extends BaseApplicationComponent
 					// Parse dynamic variables like /{cpTrigger}
 					if (stripos($restrictedArea, '{') !== false)
 					{
-						$restrictedArea = $this->parseTags($restrictedArea);
+						$restrictedArea	= craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
 					}
+
+					$restrictedArea	= '/'.ltrim($restrictedArea, '/');
 
 					if (stripos($requestedUrl, $restrictedArea) === 0)
 					{
@@ -70,7 +80,7 @@ class PatrolService extends BaseApplicationComponent
 				{
 					if (stripos($restrictedArea, '{') !== false)
 					{
-						$restrictedArea = $this->parseTags($restrictedArea);
+						$restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
 					}
 
 					if (stripos($requestedUrl, $restrictedArea) !== false)
@@ -82,28 +92,39 @@ class PatrolService extends BaseApplicationComponent
 				$this->revertSsl();
 			}
 		}
+
+		return false;
 	}
 
 	/**
 	 * Restricts accessed based on authorizedIps
 	 *
-	 * @param	Model	$settings
-	 * @return	bool
+	 * @param array $settings
+	 *
+	 * @return void
 	 */
-	public function restrict(Model $settings)
+	public function restrict(array $settings)
 	{
 		// Authorize logged in admins on the fly
-		if (craft()->userSession->isAdmin()) { return true; }
+		if (craft()->userSession->isAdmin())
+		{
+			if (craft()->request->isSiteRequest())
+			{
+				craft()->templates->includeCss('body {border-top: 5px solid #fc0;}');
+			}
 
-		if (!craft()->request->isCpRequest() && $settings->getAttribute('maintenanceMode'))
+			return;
+		}
+
+		if (!craft()->request->isCpRequest() && $settings['maintenanceMode'])
 		{
 			$requestingIp	= $this->getRequestingIp();
-			$authorizedIps	= $settings->getAttribute('authorizedIps');
-			$maintenanceUrl	= $settings->getAttribute('maintenanceUrl');
+			$authorizedIps	= $settings['authorizedIps'];
+			$maintenanceUrl	= $settings['maintenanceUrl'];
 
 			if ($maintenanceUrl == craft()->request->getUrl())
 			{
-				return true;
+				return;
 			}
 
 			if (empty($authorizedIps))
@@ -115,7 +136,7 @@ class PatrolService extends BaseApplicationComponent
 			{
 				if (in_array($requestingIp, $authorizedIps))
 				{
-					return true;
+					return;
 				}
 
 				foreach ($authorizedIps as $authorizedIp)
@@ -124,7 +145,7 @@ class PatrolService extends BaseApplicationComponent
 
 					if (stripos($requestingIp, $authorizedIp) === 0)
 					{
-						return true;
+						return;
 					}
 				}
 
@@ -134,56 +155,142 @@ class PatrolService extends BaseApplicationComponent
 	}
 
 	/**
-	 * Ensures that we get the right IP address even if behind CloudFlare
-	 *
-	 * @todo	Add support for IPV6 and Proxy servers (Overkill?)
-	 * @return	string
+	 * Redirects to the HTTPS version of the requested URL
 	 */
-	public function getRequestingIp()
+	protected function forceSsl()
 	{
-		return isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
+		$siteUrl	= UrlHelper::getSiteUrl();
+		$requestUri	= craft()->request->getUrl();
+		$redirectTo	= str_replace('http://', 'https://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
+
+		craft()->request->redirect($redirectTo);
 	}
 
-	public function hasCpRule(Model $settings)
+	/**
+	 * Redirects to the HTTP version of the requested URL
+	 */
+	protected function revertSsl()
 	{
-		$restrictedAreas = $settings->getAttribute('restrictedAreas');
+		$siteUrl	= UrlHelper::getSiteUrl();
+		$requestUri	= craft()->request->getUrl();
+		$redirectTo	= str_replace('https://', 'http://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
 
-		if (is_array($restrictedAreas) && count($restrictedAreas))
+		craft()->request->redirect($redirectTo);
+	}
+
+	/**
+	 * Returns a list of dynamic parameters and their values that can be used in restricted area settings
+	 *
+	 * @return array
+	 */
+	protected function getDynamicParams()
+	{
+		if (is_null($this->dynamicParams))
 		{
-			foreach ($restrictedAreas as $restrictedArea)
+			$variables		= craft()->config->get('environmentVariables');
+			$dynamicParams	= array(
+				'cpTrigger'		=> craft()->config->get('cpTrigger'),
+				'actionTrigger'	=> craft()->config->get('actionTrigger')
+			);
+
+			if (is_array($variables) && count($variables))
 			{
-				if (stripos($restrictedArea, '/{cpTrigger}') !== false)
+				$this->dynamicParams = array_merge($dynamicParams, $variables);
+			}
+		}
+
+		return $this->dynamicParams;
+	}
+
+	/**
+	 * Parses authorizedIps to ensure they are valid even when created from a string
+	 *
+	 * @param array|string $ips
+	 *
+	 * @return array
+	 */
+	public function parseAuthorizedIps($ips)
+	{
+		if (is_string($ips) && !empty($ips))
+		{
+			$ips = explode(PHP_EOL, $ips);
+		}
+
+		return $this->filterOutArrayValues($ips, function($val)
+		{
+			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
+		});
+	}
+
+	/**
+	 * Parser restricted areas to ensure they are valid even when created from a string
+	 *
+	 * @param array|string $areas
+	 *
+	 * @return array
+	 */
+	public function parseRestrictedAreas($areas)
+	{
+		if (is_string($areas))
+		{
+			$areas	= explode(PHP_EOL, $areas);
+		}
+
+		return $this->filterOutArrayValues($areas, function($val)
+		{
+			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
+
+			if (!$valid)
+			{
+				return false;
+			}
+
+			return true;
+		});
+	}
+
+	/**
+	 * Filters out array values by using a custom filter
+	 *
+	 * @param array $values
+	 * @param callable $filter
+	 * @param bool $preserveKeys
+	 *
+	 * @return array
+	 */
+	protected function filterOutArrayValues(array $values=null, \Closure $filter=null, $preserveKeys=false)
+	{
+		$data = array();
+
+		if (is_array($values) && count($values))
+		{
+			foreach ($values as $key => $value)
+			{
+				$value = trim($value);
+
+				if (!empty($value))
 				{
-					return true;
+					if (is_callable($filter) && $filter($value))
+					{
+						$data[$key] = $value;
+					}
 				}
 			}
 
-			return false;
-		}
-
-		return (bool) (stripos((string) $restrictedAreas, '/{cpTrigger}') !== false);
-	}
-
-	public function hasIpRule(Model $settings)
-	{
-		$authorizedIps = $settings->getAttribute('authorizedIps');
-
-		if (is_array($authorizedIps) && count($authorizedIps))
-		{
-			foreach ($authorizedIps as $authorizedIp)
+			if (!$preserveKeys)
 			{
-				if (stripos($authorizedIp, $this->getRequestingIp()) !== false)
-				{
-					return true;
-				}
+				$data = array_values($data);
 			}
-
-			return false;
 		}
 
-		return (bool) (stripos((string) $authorizedIps, $this->getRequestingIp()) !== false);
+		return $data;
 	}
 
+	/**
+	 * @param string $redirectTo
+	 *
+	 * @throws HttpException
+	 */
 	protected function forceRedirect($redirectTo='')
 	{
 		if (empty($redirectTo))
@@ -194,103 +301,21 @@ class PatrolService extends BaseApplicationComponent
 		craft()->request->redirect($redirectTo);
 	}
 
+	/**
+	 * Ensures that we get the right IP address even if behind CloudFlare
+	 *
+	 * @return string
+	 */
+	public function getRequestingIp()
+	{
+		return isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
+	}
+
+	/**
+	 * @throws HttpException
+	 */
 	protected function runDefaultBehavior()
 	{
 		throw new HttpException(403);
-	}
-
-	protected function forceSsl()
-	{
-		$siteUrl	= UrlHelper::getSiteUrl();
-		$requestUri	= craft()->request->getUrl();
-		$redirectTo	= str_replace('http://', 'https://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
-
-		craft()->request->redirect($redirectTo);
-	}
-
-	protected function revertSsl()
-	{
-		$siteUrl	= UrlHelper::getSiteUrl();
-		$requestUri	= craft()->request->getUrl();
-		$redirectTo	= str_replace('https://', 'http://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
-
-		craft()->request->redirect($redirectTo);
-	}
-
-	protected function parseTags($str='')
-	{
-		$params = $this->getDynamicParams();
-
-		foreach ($params as $key => $val)
-		{
-			$str = str_replace('{'.$key.'}', $val, $str);
-		}
-
-		return $str;
-	}
-
-	protected function getEnvSetting($name, $default=false)
-	{
-		$env = craft()->config->get('patrolSettings');
-
-		if ($env && is_array($env))
-		{
-			return array_key_exists($name, $env);
-		}
-
-		return $default;
-	}
-
-	protected function getDynamicParams()
-	{
-		if (is_null($this->dynamicParams))
-		{
-			$env	= craft()->config->get('environmentVariables');
-			$vars	= array(
-				'cpTrigger'	=> craft()->config->get('cpTrigger')
-			);
-
-			if (count($env))
-			{
-				$vars = array_merge($vars, $env);
-			}
-
-			$this->dynamicParams = $vars;
-		}
-
-		return $this->dynamicParams;
-	}
-
-	//--------------------------------------------------------------------------------
-	// Simple error tracking to aid communication between layers
-	//--------------------------------------------------------------------------------
-
-	public function getWarning($key=null, $default=false)
-	{
-		return array_key_exists($key, $this->warnings) ? $this->warnings[$key] : $default;
-	}
-
-	public function hasWarnings($key=null)
-	{
-		if (is_null($key))
-		{
-			return count($this->warnings);
-		}
-		else
-		{
-			return $this->getWarning($key) ? true : false;
-		}
-	}
-
-	public function addWarning($msg, $key=null)
-	{
-		if (is_null($key))
-		{
-			$this->warnings[] = $msg;
-		}
-		else
-		{
-			$this->warnings[$key] = $msg;
-		}
 	}
 }
