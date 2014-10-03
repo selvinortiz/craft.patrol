@@ -8,7 +8,7 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 ----
 ### Features
 - Put your site on maintenance mode quickly and easily
-- Force SSL on specific pages, sections, or globally with grain control
+- Force SSL on specific pages, sections, or globally with fine grain control
 - Uses IP based authentication to bypass maintenance mode
 - Allows IP based authentication even if behind *CloudFlare*
 - Allows logged in admins to bypass maintenance mode
