@@ -211,6 +211,8 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	public function parseAuthorizedIps($ips)
 	{
+		$ips = trim($ips);
+
 		if (is_string($ips) && !empty($ips))
 		{
 			$ips = explode(PHP_EOL, $ips);
@@ -231,7 +233,9 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	public function parseRestrictedAreas($areas)
 	{
-		if (is_string($areas))
+		$areas = trim($areas);
+
+		if (is_string($areas) && !empty($areas))
 		{
 			$areas	= explode(PHP_EOL, $areas);
 		}
@@ -252,13 +256,13 @@ class PatrolService extends BaseApplicationComponent
 	/**
 	 * Filters out array values by using a custom filter
 	 *
-	 * @param array $values
+	 * @param array|string|null $values
 	 * @param callable $filter
 	 * @param bool $preserveKeys
 	 *
 	 * @return array
 	 */
-	protected function filterOutArrayValues(array $values=null, \Closure $filter=null, $preserveKeys=false)
+	protected function filterOutArrayValues($values=null, \Closure $filter=null, $preserveKeys=false)
 	{
 		$data = array();
 
