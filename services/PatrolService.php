@@ -2,7 +2,7 @@
 namespace Craft;
 
 /**
- * The core service managing security and maintenance
+ * The core service for security and maintenance
  *
  * Class PatrolService
  *
@@ -12,6 +12,10 @@ namespace Craft;
 
 class PatrolService extends BaseApplicationComponent
 {
+	/**
+	 * An array of key/value pairs used when parsing restricted areas like {cpTrigger}
+	 * @var array
+	 */
 	protected $dynamicParams;
 
 	/**
