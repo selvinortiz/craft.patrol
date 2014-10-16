@@ -20,7 +20,7 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 3. Adjust file permissions as necessary
 
 ### Setup
-Patrol offer a pretty straight forward but fully featured UI to adjust settings as needed  
+Patrol offers a pretty straight forward but fully featured UI to adjust settings as needed  
 Additionally, you can fully configure Patrol via environment configs which will take priority.
 
 ### Notes
@@ -30,27 +30,27 @@ Additionally, you can fully configure Patrol via environment configs which will 
 
 ### FAQ
 
-#### 1. How do I give users access when maintenance mode is ON?
+##### 1. How do I give users access when maintenance mode is ON?
 - You can add their **IP** to the list of _Authorized IPs_
 - Logged in users with **admin** privileges have full access by default
 
-#### 2. Will IP authentication work if my site is behind [CloudFlare](http://cloudflare.com)?
+##### 2. Will IP authentication work if my site is behind [CloudFlare](http://cloudflare.com)?
 - **Yes**, CloudFlare provides the **requesting IP** via a header that Patrol understands
 
-#### 3. Doesn't Craft have a maintenance mode setting?
+##### 3. Doesn't Craft have a maintenance mode setting?
 - **Yes**, but it's meant for internal use only to handle updates
 
 ### SSL Rules FAQ
 Please note that these questions/answers only apply if you don't want to enable **SSL** everywhere for whatever reason.
-However, forcing SSL everywhere is now a standard and it is what I would recommended.
+However, forcing SSL everywhere is now standard practice and it is what I would recommended you do.
 
-#### 1. How do I force secure connections on the Control Panel?
+##### 1. How do I force secure connections on the Control Panel?
 - You can simply add the URL for it (/admin) or use `/{cpTrigger}` so that it works even if you change that setting later
 
-#### 2. How do I force secure connections on a specific URL, like my login page?
+##### 2. How do I force secure connections on a specific URL, like my login page?
 - You can add something like `/members/login` to the _Restricted Areas_
 
-#### 3. How do I force secure connections on a specific section, like the members area?
+##### 3. How do I force secure connections on a specific section, like the members area?
 - You can add the section URL `/members` and URLs on that scope will be protected as well
 
 ### Help & Feedback
