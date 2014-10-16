@@ -45,11 +45,12 @@ class PatrolService extends BaseApplicationComponent
 			$restrictedAreas	= $settings['restrictedAreas'];
 			$securedConnection	= craft()->request->isSecureConnection();
 
+			// Forcing SSL if no restricted areas are defined, equivalent to strict mode.
 			if (empty($restrictedAreas))
 			{
-				if ($securedConnection)
+				if (!$securedConnection)
 				{
-					$this->revertSsl();
+					$this->forceSsl();
 				}
 
 				return true;

@@ -1,6 +1,6 @@
 ![Patrol](resources/img/patrol.png)
 
-## Patrol 0.9.7
+## Patrol 0.9.8
 Lovingly crafted *by* [Selvin Ortiz](http://twitter.com/selvinortiz) for [Craft CMS](http://buildwithcraft.com)
 
 Patrol simplifies **maintenance mode** and **secure connections** for sites built with [Craft](http://buildwithcraft.com)
@@ -40,16 +40,17 @@ Additionally, you can fully configure Patrol via environment configs which will 
 #### 3. Doesn't Craft have a maintenance mode setting?
 - **Yes**, but it's meant for internal use only to handle updates
 
-#### 4. How do I force secure connections on the Control Panel?
+### SSL Rules FAQ
+Please note that these questions/answers only apply if you don't want to enable **SSL** everywhere for whatever reason.
+However, forcing SSL everywhere is now a standard and it is what I would recommended.
+
+#### 1. How do I force secure connections on the Control Panel?
 - You can simply add the URL for it (/admin) or use `/{cpTrigger}` so that it works even if you change that setting later
 
-##### 5. How do I force secure connections on my whole site?
-- Add a forward slash `/` to the list of _Restricted Areas_
-
-##### 6. How do I force secure connections on a specific URL, like my login page?
+#### 2. How do I force secure connections on a specific URL, like my login page?
 - You can add something like `/members/login` to the _Restricted Areas_
 
-##### 7. How do I force secure connections on a specific section, like the members area?
+#### 3. How do I force secure connections on a specific section, like the members area?
 - You can add the section URL `/members` and URLs on that scope will be protected as well
 
 ### Help & Feedback

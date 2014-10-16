@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol simplifies maintenance and security for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selvin.co>
- * @version		0.9.7
+ * @version		0.9.8
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -64,7 +64,7 @@ class PatrolPlugin extends BasePlugin
 	 */
 	public function getVersion()
 	{
-		return '0.9.7';
+		return '0.9.8';
 	}
 
 	/**
