@@ -23,6 +23,36 @@ Patrol simplifies **maintenance mode** and **secure connections** for sites buil
 Patrol offers a pretty straight forward but fully featured UI to adjust settings as needed  
 Additionally, you can fully configure Patrol via environment configs which will take priority.
 
+### Environment Driven Configuration
+You can configure Patrol and all of its settings from any environment definition. Here is an example of how you could go about setting that up...
+
+
+```php
+// config/general.php
+return array(
+	'*'	=> array(
+		'patrol'				=> array(
+			'forceSsl'			=> true,
+			'restrictedAreas'	=> array(
+				'/{cpTrigger}',
+				'/members'
+			),
+			'maintenanceMode'	=> false,
+			'maintenanceUrl'	=> '/offline.html',
+			'authorizedIps'		=> array(
+				'127.0.0.1',
+			),
+			'enableCpTab'		=> false
+			'pluginAlias'		=> '',
+		)
+	),
+	'.dev'	=> array(
+		'patrol'				=> array(
+			'forceSsl'			=> false,
+		)
+	)
+```
+
 ### Notes
 - If no **maintenance URL** is set, Patrol will default to throwing a **403** server error
 - The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON**
