@@ -25,7 +25,7 @@ Additionally, you can fully configure Patrol via environment configs which will 
 
 ### Notes
 - If no **maintenance URL** is set, Patrol will default to throwing a **403** server error
-- The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON** to avoid **admin** lockouts
+- The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON**
 - When maintenance mode is on, you will see a yellow border at the top of the page so that you don't forget to turn it off after testing
 
 ### FAQ
