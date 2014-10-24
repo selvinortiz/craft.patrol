@@ -113,7 +113,7 @@ class PatrolService extends BaseApplicationComponent
 		// Authorize logged in admins on the fly
 		if (craft()->userSession->isAdmin())
 		{
-			if (craft()->request->isSiteRequest())
+			if (craft()->request->isSiteRequest() && $settings['maintenanceMode'])
 			{
 				craft()->templates->includeCss('body {border-top: 5px solid #fc0;}');
 			}
