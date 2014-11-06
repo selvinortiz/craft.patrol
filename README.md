@@ -11,7 +11,7 @@ Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http:
 ----
 ### Features
 - Put your site on maintenance mode quickly and easily
-- Force SSL on globally or specific pages with fine grain control
+- Force SSL globally or on specific pages with fine grain control
 - Uses IP based authentication to bypass maintenance mode
 - Allows IP based authentication even if behind *CloudFlare*
 - Allows logged in admins to bypass maintenance mode
@@ -23,7 +23,7 @@ Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http:
 3. Adjust file permissions as necessary
 
 ### Setup
-Patrol offers a pretty straight forward but fully featured UI to adjust settings as needed  
+Patrol offers a pretty straight forward but fully featured UI to adjust settings as needed.  
 Additionally, you can fully configure Patrol via environment configs which will take priority.
 
 ### Environment Driven Configuration
