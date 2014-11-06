@@ -63,6 +63,7 @@ return array(
 ### Notes
 - If no **maintenance URL** is set, Patrol will default to throwing a **403** server error
 - The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON**
+- The yellow border used as a visual cue when maintenance mode was on has been removed
 
 ### FAQ
 
