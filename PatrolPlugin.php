@@ -4,10 +4,10 @@ namespace Craft;
 /**
  * @=Patrol
  *
- * Patrol simplifies maintenance and security for sites built with Craft
+ * Patrol simplifies maintenance and SSL for sites built with Craft
  *
  * @author		Selvin Ortiz <selvin@selvin.co>
- * @version		0.9.9
+ * @version		1.0.0
  * @package		Patrol
  * @category	Security
  * @since		Craft 1.3
@@ -64,7 +64,7 @@ class PatrolPlugin extends BasePlugin
 	 */
 	public function getVersion()
 	{
-		return '0.9.9';
+		return '1.0.0';
 	}
 
 	/**

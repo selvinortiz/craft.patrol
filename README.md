@@ -1,14 +1,17 @@
 ![Patrol](resources/img/patrol.png)
 
-## Patrol 0.9.9
+## Patrol 1.0.0
 Lovingly crafted *by* [Selvin Ortiz](http://twitter.com/selvinortiz) for [Craft CMS](http://buildwithcraft.com)
 
-Patrol simplifies **maintenance mode** and **secure connections** for sites built with [Craft](http://buildwithcraft.com)
+Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http://buildwithcraft.com)
+
+<a href='https://pledgie.com/campaigns/27296'>
+<img alt='Support Craft Plugin Development By Selvin Ortiz' src='https://pledgie.com/campaigns/27296.png?skin_name=chrome' border='0'></a>
 
 ----
 ### Features
 - Put your site on maintenance mode quickly and easily
-- Force SSL on specific pages, sections, or globally with fine grain control
+- Force SSL on globally or specific pages with fine grain control
 - Uses IP based authentication to bypass maintenance mode
 - Allows IP based authentication even if behind *CloudFlare*
 - Allows logged in admins to bypass maintenance mode
@@ -31,6 +34,14 @@ You can configure Patrol and all of its settings from any environment definition
 // config/general.php
 return array(
 	'*'	=> array(
+		'environmentVariables' => array()
+	),
+	'.dev'	=> array(
+		'patrol'				=> array(
+			'forceSsl'			=> false,
+		)
+	),
+	'.com' => array(
 		'patrol'				=> array(
 			'forceSsl'			=> true,
 			'restrictedAreas'	=> array(
@@ -45,18 +56,13 @@ return array(
 			'enableCpTab'		=> false
 			'pluginAlias'		=> '',
 		)
-	),
-	'.dev'	=> array(
-		'patrol'				=> array(
-			'forceSsl'			=> false,
-		)
-	)
+    )
+);
 ```
 
 ### Notes
 - If no **maintenance URL** is set, Patrol will default to throwing a **403** server error
 - The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON**
-- When maintenance mode is on, you will see a yellow border at the top of the page so that you don't forget to turn it off after testing
 
 ### FAQ
 
