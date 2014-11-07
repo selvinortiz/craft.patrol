@@ -159,11 +159,7 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	protected function forceSsl()
 	{
-		$siteUrl	= UrlHelper::getSiteUrl();
-		$requestUri	= craft()->request->getUrl();
-		$redirectTo	= str_replace('http://', 'https://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
-
-		craft()->request->redirect($redirectTo);
+		craft()->request->redirect('https://'.craft()->request->getServerName().craft()->request->getUrl());
 	}
 
 	/**
@@ -171,11 +167,7 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	protected function revertSsl()
 	{
-		$siteUrl	= UrlHelper::getSiteUrl();
-		$requestUri	= craft()->request->getUrl();
-		$redirectTo	= str_replace('https://', 'http://', rtrim($siteUrl, '/')).'/'.ltrim($requestUri, '/');
-
-		craft()->request->redirect($redirectTo);
+		craft()->request->redirect('http://'.craft()->request->getServerName().craft()->request->getUrl());
 	}
 
 	/**
@@ -187,15 +179,15 @@ class PatrolService extends BaseApplicationComponent
 	{
 		if (is_null($this->dynamicParams))
 		{
-			$variables		= craft()->config->get('environmentVariables');
-			$dynamicParams	= array(
-				'cpTrigger'		=> craft()->config->get('cpTrigger'),
-				'actionTrigger'	=> craft()->config->get('actionTrigger')
+			$variables				= craft()->config->get('environmentVariables');
+			$this->dynamicParams	= array(
+				'cpTrigger'			=> craft()->config->get('cpTrigger'),
+				'actionTrigger'		=> craft()->config->get('actionTrigger')
 			);
 
 			if (is_array($variables) && count($variables))
 			{
-				$this->dynamicParams = array_merge($dynamicParams, $variables);
+				$this->dynamicParams = array_merge($this->dynamicParams, $variables);
 			}
 		}
 
