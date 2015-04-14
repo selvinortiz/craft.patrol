@@ -1,3 +1,5 @@
+.tmp
+.temp
 .idea
 .DS_Store
 sync.sh

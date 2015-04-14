@@ -1,7 +1,7 @@
-![Patrol](resources/img/patrol.png)
+![Patrol](patrol/resources/img/patrol.png)
 
-## Patrol 1.0.1
-Lovingly crafted *by* [Selvin Ortiz](http://twitter.com/selvinortiz) for [Craft CMS](http://buildwithcraft.com)
+## Patrol 1.1.0
+Lovingly crafted *by* [Selvin Ortiz](https://selv.in) for [Craft CMS](http://buildwithcraft.com)
 
 Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http://buildwithcraft.com)
 
@@ -15,6 +15,7 @@ Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http:
 - Uses IP based authentication to bypass maintenance mode
 - Allows IP based authentication even if behind *CloudFlare*
 - Allows logged in admins to bypass maintenance mode
+- Allows logged in users with proper permissions to bypass maintenance mode
 - Fully configurable via _environment configs_
 
 ### Installation
@@ -61,14 +62,15 @@ return array(
 ```
 
 ### Notes
-- If no **maintenance URL** is set, Patrol will default to throwing a **403** server error
-- The **Control Panel** is accessible to logged in admins even if **maintenance mode** is **ON**
-- The yellow border used as a visual cue when maintenance mode was on has been removed
+- If no **maintenance URL** is set, Patrol will default to throwing a **403** HTTP error
+- The **Control Panel** is accessible by logged in admins if **maintenance mode** is **ON**
+- The **Control Panel** is accessible by users with proper permissions if **maintenance mode** is **ON**
 
 ### FAQ
 
 ##### 1. How do I give users access when maintenance mode is ON?
 - You can add their **IP** to the list of _Authorized IPs_
+- You can give them permission (`Patrol > Access the site when maintenance is on`
 - Logged in users with **admin** privileges have full access by default
 
 ##### 2. Will IP authentication work if my site is behind [CloudFlare](http://cloudflare.com)?
@@ -96,4 +98,4 @@ If you have questions, comments, or concerns feel free to reach out to me on twi
 ### License
 **Patrol** for _craft_ is open source software licensed under the [MIT License](http://opensource.org/licenses/MIT)
 
-![Open Source Initiative](resources/img/osilogo.png)
+![Open Source Initiative](patrol/resources/img/osilogo.png)

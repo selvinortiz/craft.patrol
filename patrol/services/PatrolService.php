@@ -6,7 +6,7 @@ namespace Craft;
  *
  * Class PatrolService
  *
- * @author Selvin Ortiz <selvin@selvin.co>
+ * @author  Selvin Ortiz <selvin@selv.in>
  * @package Craft
  */
 
@@ -14,6 +14,7 @@ class PatrolService extends BaseApplicationComponent
 {
 	/**
 	 * An array of key/value pairs used when parsing restricted areas like {cpTrigger}
+	 *
 	 * @var array
 	 */
 	protected $dynamicParams;
@@ -41,9 +42,9 @@ class PatrolService extends BaseApplicationComponent
 	{
 		if ($settings['forceSsl'])
 		{
-			$requestedUrl		= craft()->request->getUrl();
-			$restrictedAreas	= $settings['restrictedAreas'];
-			$securedConnection	= craft()->request->isSecureConnection();
+			$requestedUrl      = craft()->request->getUrl();
+			$restrictedAreas   = $settings['restrictedAreas'];
+			$securedConnection = craft()->request->isSecureConnection();
 
 			// Forcing SSL if no restricted areas are defined, equivalent to strict mode.
 			if (empty($restrictedAreas))
@@ -64,10 +65,10 @@ class PatrolService extends BaseApplicationComponent
 					// Parse dynamic variables like /{cpTrigger}
 					if (stripos($restrictedArea, '{') !== false)
 					{
-						$restrictedArea	= craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
+						$restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
 					}
 
-					$restrictedArea	= '/'.ltrim($restrictedArea, '/');
+					$restrictedArea = '/'.ltrim($restrictedArea, '/');
 
 					if (stripos($requestedUrl, $restrictedArea) === 0)
 					{
@@ -111,16 +112,16 @@ class PatrolService extends BaseApplicationComponent
 	public function restrict(array $settings)
 	{
 		// Authorize logged in admins on the fly
-		if (craft()->userSession->isAdmin())
+		if ($this->doesCurrentUserHaveAccess())
 		{
 			return;
 		}
 
-		if (!craft()->request->isCpRequest() && $settings['maintenanceMode'])
+		if (craft()->request->isSiteRequest() && $settings['maintenanceMode'])
 		{
-			$requestingIp	= $this->getRequestingIp();
-			$authorizedIps	= $settings['authorizedIps'];
-			$maintenanceUrl	= $settings['maintenanceUrl'];
+			$requestingIp   = $this->getRequestingIp();
+			$authorizedIps  = $settings['authorizedIps'];
+			$maintenanceUrl = $settings['maintenanceUrl'];
 
 			if ($maintenanceUrl == craft()->request->getUrl())
 			{
@@ -179,10 +180,10 @@ class PatrolService extends BaseApplicationComponent
 	{
 		if (is_null($this->dynamicParams))
 		{
-			$variables				= craft()->config->get('environmentVariables');
-			$this->dynamicParams	= array(
-				'cpTrigger'			=> craft()->config->get('cpTrigger'),
-				'actionTrigger'		=> craft()->config->get('actionTrigger')
+			$variables           = craft()->config->get('environmentVariables');
+			$this->dynamicParams = array(
+				'cpTrigger'     => craft()->config->get('cpTrigger'),
+				'actionTrigger' => craft()->config->get('actionTrigger')
 			);
 
 			if (is_array($variables) && count($variables))
@@ -210,10 +211,12 @@ class PatrolService extends BaseApplicationComponent
 			$ips = explode(PHP_EOL, $ips);
 		}
 
-		return $this->filterOutArrayValues($ips, function($val)
-		{
-			return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
-		});
+		return $this->filterOutArrayValues(
+			$ips, function ($val)
+			{
+				return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
+			}
+		);
 	}
 
 	/**
@@ -225,36 +228,37 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	public function parseRestrictedAreas($areas)
 	{
-		$areas = trim($areas);
-
 		if (is_string($areas) && !empty($areas))
 		{
-			$areas	= explode(PHP_EOL, $areas);
+			$areas = trim($areas);
+			$areas = explode(PHP_EOL, $areas);
 		}
 
-		return $this->filterOutArrayValues($areas, function($val)
-		{
-			$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
-
-			if (!$valid)
+		return $this->filterOutArrayValues(
+			$areas, function ($val)
 			{
-				return false;
-			}
+				$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
 
-			return true;
-		});
+				if (!$valid)
+				{
+					return false;
+				}
+
+				return true;
+			}
+		);
 	}
 
 	/**
 	 * Filters out array values by using a custom filter
 	 *
 	 * @param array|string|null $values
-	 * @param callable $filter
-	 * @param bool $preserveKeys
+	 * @param callable          $filter
+	 * @param bool              $preserveKeys
 	 *
 	 * @return array
 	 */
-	protected function filterOutArrayValues($values=null, \Closure $filter=null, $preserveKeys=false)
+	protected function filterOutArrayValues($values = null, \Closure $filter = null, $preserveKeys = false)
 	{
 		$data = array();
 
@@ -287,7 +291,7 @@ class PatrolService extends BaseApplicationComponent
 	 *
 	 * @throws HttpException
 	 */
-	protected function forceRedirect($redirectTo='')
+	protected function forceRedirect($redirectTo = '')
 	{
 		if (empty($redirectTo))
 		{
@@ -305,6 +309,26 @@ class PatrolService extends BaseApplicationComponent
 	public function getRequestingIp()
 	{
 		return isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
+	}
+
+	/**
+	 * Returns whether or not the current user has access during maintenance mode
+	 */
+	protected function doesCurrentUserHaveAccess()
+	{
+		// Admins have access by default
+		if (craft()->userSession->isAdmin())
+		{
+			return true;
+		}
+
+		// User has the right permission
+		if (craft()->userSession->checkPermission('patrolMaintenanceModeBypass'))
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
