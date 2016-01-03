@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;}
+	.st1{display:inline;}
+	.st2{fill:url(#XMLID_7_);}
+	.st3{fill:url(#XMLID_8_);}
+</style>
+<g id="XMLID_5_" class="st0">
+	<g class="st1">
+		<path id="XMLID_2_" d="M23,44l-5,4V27h13.5c0.9,0,8.6-0.6,8.7-11.1C40.2,6,32.5,5,31.4,5H8v43l-5-4V0l28.4,0
+			c0.1,0,14,0.5,13.9,15.9c0,5.1-1.5,9.3-4.4,12.1c-4,4-9.3,4-9.5,4H23V44z"/>
+	</g>
+	<g class="st1">
+		<polyline id="XMLID_1_" points="32.3,15.7 34.7,17.9 32.3,19.5 29.9,17 26.6,20.3 23,17 18,17 18,14 23.8,14 26.4,16.5 29.9,13.3 
+			32.3,15.7 		"/>
+	</g>
+</g>
+<g>
+	<g>
+		<linearGradient id="XMLID_7_" gradientUnits="userSpaceOnUse" x1="24.167" y1="48" x2="24.167" y2="9.504220e-10">
+			<stop  offset="0" style="stop-color:#22B573"/>
+			<stop  offset="9.065491e-02" style="stop-color:#38B868"/>
+			<stop  offset="0.2447" style="stop-color:#56BD59"/>
+			<stop  offset="0.4069" style="stop-color:#6EC14E"/>
+			<stop  offset="0.5786" style="stop-color:#7FC445"/>
+			<stop  offset="0.7663" style="stop-color:#89C541"/>
+			<stop  offset="1" style="stop-color:#8CC63F"/>
+		</linearGradient>
+		<path id="XMLID_4_" class="st2" d="M23,44l-5,4V27h13.5c0.9,0,8.6-0.6,8.7-11.1C40.2,6,32.4,5,31.4,5H8v43l-5-4V0l28.4,0
+			c0.1,0,14,0.5,13.9,15.9c0,5.1-1.5,9.3-4.4,12.1c-4,4-9.3,4-9.5,4H23V44z"/>
+	</g>
+	<g>
+		<linearGradient id="XMLID_8_" gradientUnits="userSpaceOnUse" x1="26.3411" y1="20.2684" x2="26.3411" y2="13.3225">
+			<stop  offset="0" style="stop-color:#22B573"/>
+			<stop  offset="9.065491e-02" style="stop-color:#38B868"/>
+			<stop  offset="0.2447" style="stop-color:#56BD59"/>
+			<stop  offset="0.4069" style="stop-color:#6EC14E"/>
+			<stop  offset="0.5786" style="stop-color:#7FC445"/>
+			<stop  offset="0.7663" style="stop-color:#89C541"/>
+			<stop  offset="1" style="stop-color:#8CC63F"/>
+		</linearGradient>
+		<polyline id="XMLID_3_" class="st3" points="32.3,15.7 34.7,17.9 32.3,19.5 29.9,17 26.6,20.3 23,17 18,17 18,14 23.8,14 
+			26.4,16.5 29.8,13.3 32.3,15.7 		"/>
+	</g>
+</g>
+</svg>

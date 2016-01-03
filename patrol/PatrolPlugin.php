@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol simplifies maintenance and SSL for sites built with Craft
  *
  * @author   Selvin Ortiz <selvin@selvin.co>
- * @version  1.1.0
+ * @version  1.1.1
  * @package  Patrol
  * @category Security
  * @since    Craft 1.3
@@ -38,10 +38,13 @@ class PatrolPlugin extends BasePlugin
 	 */
 	public function init()
 	{
-		$this->configs  = craft()->config->get('patrol');
-		$this->settings = array_merge($this->getSettings()->getAttributes(), $this->configs ? $this->configs : array());
+		if (!craft()->isConsole())
+		{
+			$this->configs  = craft()->config->get('patrol');
+			$this->settings = array_merge($this->getSettings()->getAttributes(), $this->configs ? $this->configs : array());
 
-		patrol()->watch($this->settings);
+			patrol()->watch($this->settings);
+		}
 	}
 
 	/**
@@ -63,7 +66,7 @@ class PatrolPlugin extends BasePlugin
 	 */
 	public function getVersion()
 	{
-		return '1.1.0';
+		return '1.1.1';
 	}
 
 	/**
@@ -79,7 +82,15 @@ class PatrolPlugin extends BasePlugin
 	 */
 	public function getDeveloperUrl()
 	{
-		return 'https://selv.in';
+		return 'http://selv.in';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDocumentationUrl()
+	{
+		return 'https://github.com/selvinortiz/craft.patrol';
 	}
 
 	/**
