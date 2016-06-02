@@ -252,11 +252,7 @@ class PatrolService extends BaseApplicationComponent
 	/**
 	 * Determines whether we're already secured, even if on CloudFlare Flexible SSL
 	 *
-	 * @param array|string|null $values
-	 * @param callable          $filter
-	 * @param bool              $preserveKeys
-	 *
-	 * @return array
+	 * @return bool
 	 */
 	protected function isSecureConnection()
 	{
