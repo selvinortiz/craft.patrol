@@ -44,7 +44,7 @@ class PatrolService extends BaseApplicationComponent
 		{
 			$requestedUrl      = craft()->request->getUrl();
 			$restrictedAreas   = $settings['restrictedAreas'];
-			$securedConnection = craft()->request->isSecureConnection();
+			$securedConnection = $this->isSecureConnection();
 
 			// Forcing SSL if no restricted areas are defined, equivalent to strict mode.
 			if (empty($restrictedAreas))
@@ -247,6 +247,28 @@ class PatrolService extends BaseApplicationComponent
 				return true;
 			}
 		);
+	}
+
+	/**
+	 * Determines whether we're already secured, even if on CloudFlare Flexible SSL
+	 *
+	 * @param array|string|null $values
+	 * @param callable          $filter
+	 * @param bool              $preserveKeys
+	 *
+	 * @return array
+	 */
+	protected function isSecureConnection()
+	{
+		$isSecure = craft()->request->isSecureConnection();
+
+		if (isset($_SERVER['HTTP_CF_VISITOR']))
+		{
+			if (strpos($_SERVER['HTTP_CF_VISITOR'], 'https'))
+				$isSecure = true; // CloudFlare confirms the original https request
+		}
+
+		return $isSecure;
 	}
 
 	/**
