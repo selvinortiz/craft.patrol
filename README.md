@@ -1,6 +1,6 @@
 ![Patrol](patrol/resources/img/patrol.png)
 
-## Patrol 1.2.0
+## Patrol 1.X
 Lovingly crafted *by* [Selvin Ortiz](https://selv.in) for [Craft CMS](http://buildwithcraft.com)
 
 Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http://buildwithcraft.com)
