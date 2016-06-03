@@ -260,7 +260,7 @@ class PatrolService extends BaseApplicationComponent
 
 		if (isset($_SERVER['HTTP_CF_VISITOR']))
 		{
-			if (strpos($_SERVER['HTTP_CF_VISITOR'], 'https'))
+			if (strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
 				$isSecure = true; // CloudFlare confirms the original https request
 		}
 
