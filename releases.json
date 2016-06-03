@@ -1,0 +1,20 @@
+[
+    {
+        "version": "1.2.0",
+        "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.2.0.zip",
+        "date": "2016-06-02T16:00:00-06:00",
+        "notes": [
+            "# Secured Connection Detection",
+            "[Added] Added support for detecting flexible SSL by _CloudFlare_.",
+            "[Fixed] Fixed issue where a redirect loop could occur if *https* was improperly detected.",
+        ]
+    },
+    {
+        "version": "1.1.1",
+        "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.1.1.zip",
+        "date": "2016-01-03T14:00:00-06:00",
+        "notes": [
+            "[Improved] Made Patrol compatible with Craft 2.5",
+        ]
+    }
+]
