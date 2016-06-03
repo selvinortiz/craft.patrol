@@ -256,15 +256,17 @@ class PatrolService extends BaseApplicationComponent
 	 */
 	protected function isSecureConnection()
 	{
-		$isSecure = craft()->request->isSecureConnection();
-
-		if (isset($_SERVER['HTTP_CF_VISITOR']))
+		if (craft()->request->isSecureConnection())
 		{
-			if (strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
-				$isSecure = true; // CloudFlare confirms the original https request
+			return true;
 		}
 
-		return $isSecure;
+		if (isset($_SERVER['HTTP_CF_VISITOR']) && stripos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
