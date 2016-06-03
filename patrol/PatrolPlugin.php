@@ -94,6 +94,14 @@ class PatrolPlugin extends BasePlugin
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getReleaseFeedUrl()
+	{
+		return 'https://raw.githubusercontent.com/selvinortiz/craft.patrol/master/releases.json';
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasCpSection()
