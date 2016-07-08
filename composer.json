@@ -1,0 +1,14 @@
+{
+	"name": "selvinortiz/craft-patrol",
+	"description": "Patrol simplifies maintenance mode and secured connections for sites built with Craft",
+  "type": "craft-plugin",
+	"authors": [
+		{
+			"name": "Selvin Ortiz",
+			"email": "selvin@selvin.co"
+		}
+	],
+	"require": {
+			"composer/installers": "~1.0"
+	}
+}
