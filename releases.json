@@ -1,28 +1,58 @@
 [
-    {
-        "version": "1.3.0",
-        "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.3.0.zip",
-        "date": "2016-06-02T16:30:00-06:00",
-        "notes": [
-            "[Added] Release feed URL for updates integration."
-        ]
-    },
-    {
-        "version": "1.2.0",
-        "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.2.0.zip",
-        "date": "2016-06-02T16:00:00-06:00",
-        "notes": [
-            "# Secured Connection Detection",
-            "[Added] Added support for detecting flexible SSL by _CloudFlare_.",
-            "[Fixed] Fixed issue where a redirect loop could occur if *https* was improperly detected."
-        ]
-    },
-    {
-        "version": "1.1.1",
-        "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.1.1.zip",
-        "date": "2016-01-03T14:00:00-06:00",
-        "notes": [
-            "[Improved] Made Patrol compatible with Craft 2.5"
-        ]
-    }
+  {
+    "version": "1.3.0",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.3.0.zip",
+    "date": "2016-06-02T13:13:00-06:00",
+    "notes": [
+      "[Added] Added release feed URL for update integration"
+    ]
+  },
+  {
+    "version": "1.2.0",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.2.0.zip",
+    "date": "2016-06-02T13:13:00-06:00",
+    "notes": [
+      "# Secured Connection Detection",
+      "[Added] Added support for detecting flexible SSL by _CloudFlare_",
+      "[Fixed] Fixed issue where a redirect loop could occur if *HTTPS* was improperly detected"
+    ]
+  },
+  {
+    "version": "1.1.1",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.1.1.zip",
+    "date": "2016-01-03T13:13:00-06:00",
+    "notes": [
+      "[Updated] Updated Patrol to be compatible with Craft 2.5"
+    ]
+  },
+  {
+    "version": "1.1.0",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.1.0.zip",
+    "date": "2015-04-14T13:13:00-06:00",
+    "notes": [
+      "[Added] Added `Patrol > Access the site when maintenance is on` permission",
+      "[Added] Added the ability to give users access to the **CP** during maintenance via new permission",
+      "[Fixed] Fixed issue where calling `trim()` on non-string would cause fatal error",
+      "[Removed] Removed dependency on `patrol.js`",
+      "[Updated] Updated repo to include a root directory called `patrol` for consistency with Craft standards"
+    ]
+  },
+  {
+    "version": "1.0.1",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.0.1.zip",
+    "date": "2014-11-07T13:13:00-06:00",
+    "notes": [
+      "[Fixed] Fixed issue #11 where SSL would not obey `restrictedAreas` nor revert",
+      "[Fixed] Fixed logic issue where dynamic params were not parsed if `environmentVariables` was not set",
+      "[Updated] Updated the way URLs for redirection are put together"
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.0.0.zip",
+    "date": "2014-11-06T13:13:00-06:00",
+    "notes": [
+      "# Initial stable release"
+    ]
+  }
 ]

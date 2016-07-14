@@ -2,360 +2,397 @@
 namespace Craft;
 
 /**
- * The core service for security and maintenance
- *
  * Class PatrolService
  *
- * @author  Selvin Ortiz <selvin@selv.in>
+ * @author  Selvin Ortiz <selvin@selvin.co>
  * @package Craft
  */
-
 class PatrolService extends BaseApplicationComponent
 {
-	/**
-	 * An array of key/value pairs used when parsing restricted areas like {cpTrigger}
-	 *
-	 * @var array
-	 */
-	protected $dynamicParams;
+    /**
+     * An array of settings from the plugin and general config
+     *
+     * @var array
+     */
+    protected $settings;
 
-	/**
-	 * Begin watching...
-	 *
-	 * @param array $settings
-	 */
-	public function watch(array $settings)
-	{
-		$this->protect($settings);
-		$this->restrict($settings);
-	}
+    /**
+     * An array of key/value pairs used when parsing restricted areas like {cpTrigger}
+     *
+     * @var array
+     */
+    protected $dynamicParams;
 
-	/**
-	 * Forces SSL based on restrictedAreas
-	 * The environment settings take priority over those defined in the control panel
-	 *
-	 * @param array $settings
-	 *
-	 * @return bool
-	 */
-	public function protect(array $settings)
-	{
-		if ($settings['forceSsl'])
-		{
-			$requestedUrl      = craft()->request->getUrl();
-			$restrictedAreas   = $settings['restrictedAreas'];
-			$securedConnection = $this->isSecureConnection();
+    /**
+     * @param array $settings
+     */
+    public function watch(array $settings)
+    {
+        $this->settings = $settings;
 
-			// Forcing SSL if no restricted areas are defined, equivalent to strict mode.
-			if (empty($restrictedAreas))
-			{
-				if (!$securedConnection)
-				{
-					$this->forceSsl();
-				}
+        $this->enforceDomainRules();
+        $this->enforceConnectionRules();
+        $this->enforceMaintenanceRules();
+    }
 
-				return true;
-			}
+    /**
+     * Enforces domain rules
+     *
+     * @return void
+     */
+    protected function enforceDomainRules()
+    {
+        if (! empty($this->settings['primaryDomain']) && mb_strpos($this->settings['primaryDomain'], '*') === false)
+        {
+            $vars          = $this->getDynamicParams();
+            $primaryDomain = craft()->templates->renderObjectTemplate($this->settings['primaryDomain'], $vars);
 
-			// Force SSL
-			if (!$securedConnection)
-			{
-				foreach ($restrictedAreas as $restrictedArea)
-				{
-					// Parse dynamic variables like /{cpTrigger}
-					if (stripos($restrictedArea, '{') !== false)
-					{
-						$restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
-					}
+            if (StringHelper::toLowerCase($primaryDomain) != StringHelper::toLowerCase($_SERVER['SERVER_NAME']))
+            {
+                // Checking for http or https at the beginning
+                if (mb_stripos($primaryDomain, 'http') !== 0)
+                {
+                    // Using http by default and let the next request sort out SSL
+                    $primaryDomain = 'http://'.$primaryDomain;
+                }
 
-					$restrictedArea = '/'.ltrim($restrictedArea, '/');
+                craft()->request->redirect($primaryDomain);
+            }
+        }
+    }
 
-					if (stripos($requestedUrl, $restrictedArea) === 0)
-					{
-						$this->forceSsl();
-					}
-				}
+    /**
+     * Enforces connection rules
+     *
+     * @return void
+     */
+    protected function enforceConnectionRules()
+    {
+        if ($this->settings['forceSsl'])
+        {
+            $vars              = $this->getDynamicParams();
+            $requestedUrl      = craft()->request->getUrl();
+            $restrictedAreas   = $this->settings['restrictedAreas'];
+            $securedConnection = $this->isSecureConnection();
 
-				return true;
-			}
+            // Forcing SSL if no restricted areas are defined, equivalent to strict mode.
+            if (empty($restrictedAreas))
+            {
+                if (! $securedConnection)
+                {
+                    $this->forceSsl();
+                }
 
-			// Revert SSL
-			if ($securedConnection)
-			{
-				foreach ($restrictedAreas as $restrictedArea)
-				{
-					if (stripos($restrictedArea, '{') !== false)
-					{
-						$restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $this->getDynamicParams());
-					}
+                return;
+            }
 
-					if (stripos($requestedUrl, $restrictedArea) !== false)
-					{
-						return true;
-					}
-				}
+            // Force SSL
+            if (! $securedConnection)
+            {
+                foreach ($restrictedAreas as $restrictedArea)
+                {
+                    // Parse dynamic variables like /{cpTrigger}
+                    if (stripos($restrictedArea, '{') !== false)
+                    {
+                        $restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $vars);
+                    }
 
-				$this->revertSsl();
-			}
-		}
+                    $restrictedArea = '/'.ltrim($restrictedArea, '/');
 
-		return false;
-	}
+                    if (stripos($requestedUrl, $restrictedArea) === 0)
+                    {
+                        $this->forceSsl();
+                    }
+                }
 
-	/**
-	 * Restricts accessed based on authorizedIps
-	 *
-	 * @param array $settings
-	 *
-	 * @return void
-	 */
-	public function restrict(array $settings)
-	{
-		// Authorize logged in admins on the fly
-		if ($this->doesCurrentUserHaveAccess())
-		{
-			return;
-		}
+                return;
+            }
 
-		if (craft()->request->isSiteRequest() && $settings['maintenanceMode'])
-		{
-			$requestingIp   = $this->getRequestingIp();
-			$authorizedIps  = $settings['authorizedIps'];
-			$maintenanceUrl = $settings['maintenanceUrl'];
+            // Revert SSL
+            if ($securedConnection)
+            {
+                foreach ($restrictedAreas as $restrictedArea)
+                {
+                    if (stripos($restrictedArea, '{') !== false)
+                    {
+                        $restrictedArea = craft()->templates->renderObjectTemplate($restrictedArea, $vars);
+                    }
 
-			if ($maintenanceUrl == craft()->request->getUrl())
-			{
-				return;
-			}
+                    if (stripos($requestedUrl, $restrictedArea) !== false)
+                    {
+                        return;
+                    }
+                }
 
-			if (empty($authorizedIps))
-			{
-				$this->forceRedirect($maintenanceUrl);
-			}
+                $this->revertSsl();
+            }
+        }
+    }
 
-			if (is_array($authorizedIps) && count($authorizedIps))
-			{
-				if (in_array($requestingIp, $authorizedIps))
-				{
-					return;
-				}
+    /**
+     * Enforce maintenance rules
+     *
+     * @return void
+     */
+    protected function enforceMaintenanceRules()
+    {
+        $maintenance     = $this->settings['maintenanceMode'];
+        $isCpRequest     = craft()->request->isCpRequest();
+        $isSiteRequest   = craft()->request->isSiteRequest();
+        $isCpLoginPage   = mb_stripos(craft()->request->getRequestUri(), '/login');
+        $maintenanceUrl  = $this->settings['maintenanceUrl'];
+        $authorizedUsers = $this->settings['authorizedUsers'];
 
-				foreach ($authorizedIps as $authorizedIp)
-				{
-					$authorizedIp = str_replace('*', '', $authorizedIp);
+        // @todo Gotta find a way to make this less ugly:)
+        if ($maintenance && $isCpRequest && is_array($authorizedUsers) && count($authorizedUsers) && ! $isCpLoginPage)
+        {
+            if (craft()->userSession->isLoggedIn() && in_array(craft()->userSession->getUser()->email, $authorizedUsers))
+            {
+                return;
+            }
 
-					if (stripos($requestingIp, $authorizedIp) === 0)
-					{
-						return;
-					}
-				}
+            $this->forceRedirect($maintenanceUrl);
+        }
 
-				$this->forceRedirect($maintenanceUrl);
-			}
-		}
-	}
+        if ($maintenance && $isSiteRequest)
+        {
+            // Authorize logged in admins on the fly
+            if ($this->doesCurrentUserHaveAccess())
+            {
+                return;
+            }
 
-	/**
-	 * Redirects to the HTTPS version of the requested URL
-	 */
-	protected function forceSsl()
-	{
-		craft()->request->redirect('https://'.craft()->request->getServerName().craft()->request->getUrl());
-	}
+            $requestingIp  = $this->getRequestingIp();
+            $authorizedIps = $this->settings['authorizedIps'];
 
-	/**
-	 * Redirects to the HTTP version of the requested URL
-	 */
-	protected function revertSsl()
-	{
-		craft()->request->redirect('http://'.craft()->request->getServerName().craft()->request->getUrl());
-	}
+            if ($maintenanceUrl == craft()->request->getUrl())
+            {
+                return;
+            }
 
-	/**
-	 * Returns a list of dynamic parameters and their values that can be used in restricted area settings
-	 *
-	 * @return array
-	 */
-	protected function getDynamicParams()
-	{
-		if (is_null($this->dynamicParams))
-		{
-			$variables           = craft()->config->get('environmentVariables');
-			$this->dynamicParams = array(
-				'cpTrigger'     => craft()->config->get('cpTrigger'),
-				'actionTrigger' => craft()->config->get('actionTrigger')
-			);
+            if (empty($authorizedIps))
+            {
+                $this->forceRedirect($maintenanceUrl);
+            }
 
-			if (is_array($variables) && count($variables))
-			{
-				$this->dynamicParams = array_merge($this->dynamicParams, $variables);
-			}
-		}
+            if (is_array($authorizedIps) && count($authorizedIps))
+            {
+                if (in_array($requestingIp, $authorizedIps))
+                {
+                    return;
+                }
 
-		return $this->dynamicParams;
-	}
+                foreach ($authorizedIps as $authorizedIp)
+                {
+                    $authorizedIp = str_replace('*', '', $authorizedIp);
 
-	/**
-	 * Parses authorizedIps to ensure they are valid even when created from a string
-	 *
-	 * @param array|string $ips
-	 *
-	 * @return array
-	 */
-	public function parseAuthorizedIps($ips)
-	{
-		$ips = trim($ips);
+                    if (stripos($requestingIp, $authorizedIp) === 0)
+                    {
+                        return;
+                    }
+                }
 
-		if (is_string($ips) && !empty($ips))
-		{
-			$ips = explode(PHP_EOL, $ips);
-		}
+                $this->forceRedirect($maintenanceUrl);
+            }
+        }
+    }
 
-		return $this->filterOutArrayValues(
-			$ips, function ($val)
-			{
-				return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
-			}
-		);
-	}
+    /**
+     * Redirects to the HTTPS version of the requested URL
+     */
+    protected function forceSsl()
+    {
+        craft()->request->redirect('https://'.craft()->request->getServerName().craft()->request->getUrl());
+    }
 
-	/**
-	 * Parser restricted areas to ensure they are valid even when created from a string
-	 *
-	 * @param array|string $areas
-	 *
-	 * @return array
-	 */
-	public function parseRestrictedAreas($areas)
-	{
-		if (is_string($areas) && !empty($areas))
-		{
-			$areas = trim($areas);
-			$areas = explode(PHP_EOL, $areas);
-		}
+    /**
+     * Redirects to the HTTP version of the requested URL
+     */
+    protected function revertSsl()
+    {
+        craft()->request->redirect('http://'.craft()->request->getServerName().craft()->request->getUrl());
+    }
 
-		return $this->filterOutArrayValues(
-			$areas, function ($val)
-			{
-				$valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
+    /**
+     * Returns a list of dynamic parameters and their values that can be used in restricted area settings
+     *
+     * @return array
+     */
+    protected function getDynamicParams()
+    {
+        if (is_null($this->dynamicParams))
+        {
+            $variables           = craft()->config->get('environmentVariables');
+            $this->dynamicParams = [
+                'cpTrigger'     => craft()->config->get('cpTrigger'),
+                'actionTrigger' => craft()->config->get('actionTrigger'),
+            ];
 
-				if (!$valid)
-				{
-					return false;
-				}
+            if (is_array($variables) && count($variables))
+            {
+                $this->dynamicParams = array_merge($this->dynamicParams, $variables);
+            }
+        }
 
-				return true;
-			}
-		);
-	}
+        return $this->dynamicParams;
+    }
 
-	/**
-	 * Determines whether we're already secured, even if on CloudFlare Flexible SSL
-	 *
-	 * @return bool
-	 */
-	protected function isSecureConnection()
-	{
-		if (craft()->request->isSecureConnection())
-		{
-			return true;
-		}
+    /**
+     * Parses authorizedIps to ensure they are valid even when created from a string
+     *
+     * @param array|string $ips
+     *
+     * @return array
+     */
+    public function parseAuthorizedIps($ips)
+    {
+        $ips = trim($ips);
 
-		if (isset($_SERVER['HTTP_CF_VISITOR']) && stripos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
-		{
-			return true;
-		}
+        if (is_string($ips) && ! empty($ips))
+        {
+            $ips = explode(PHP_EOL, $ips);
+        }
 
-		return false;
-	}
+        return $this->filterOutArrayValues(
+            $ips,
+            function ($val)
+            {
+                return preg_match('/^[0-9\.\*]{5,15}$/i', $val);
+            }
+        );
+    }
 
-	/**
-	 * Filters out array values by using a custom filter
-	 *
-	 * @param array|string|null $values
-	 * @param callable          $filter
-	 * @param bool              $preserveKeys
-	 *
-	 * @return array
-	 */
-	protected function filterOutArrayValues($values = null, \Closure $filter = null, $preserveKeys = false)
-	{
-		$data = array();
+    /**
+     * Parser restricted areas to ensure they are valid even when created from a string
+     *
+     * @param array|string $areas
+     *
+     * @return array
+     */
+    public function parseRestrictedAreas($areas)
+    {
+        if (is_string($areas) && ! empty($areas))
+        {
+            $areas = trim($areas);
+            $areas = explode(PHP_EOL, $areas);
+        }
 
-		if (is_array($values) && count($values))
-		{
-			foreach ($values as $key => $value)
-			{
-				$value = trim($value);
+        return $this->filterOutArrayValues(
+            $areas,
+            function ($val)
+            {
+                $valid = preg_match('/^[\/\{\}a-z\_\-\?\=]{1,255}$/i', $val);
 
-				if (!empty($value))
-				{
-					if (is_callable($filter) && $filter($value))
-					{
-						$data[$key] = $value;
-					}
-				}
-			}
+                if (! $valid)
+                {
+                    return false;
+                }
 
-			if (!$preserveKeys)
-			{
-				$data = array_values($data);
-			}
-		}
+                return true;
+            }
+        );
+    }
 
-		return $data;
-	}
+    /**
+     * Determines whether we're already secured, even if on CloudFlare Flexible SSL
+     *
+     * @return bool
+     */
+    protected function isSecureConnection()
+    {
+        if (craft()->request->isSecureConnection())
+        {
+            return true;
+        }
 
-	/**
-	 * @param string $redirectTo
-	 *
-	 * @throws HttpException
-	 */
-	protected function forceRedirect($redirectTo = '')
-	{
-		if (empty($redirectTo))
-		{
-			$this->runDefaultBehavior();
-		}
+        if (isset($_SERVER['HTTP_CF_VISITOR']) && stripos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
+        {
+            return true;
+        }
 
-		craft()->request->redirect($redirectTo);
-	}
+        return false;
+    }
 
-	/**
-	 * Ensures that we get the right IP address even if behind CloudFlare
-	 *
-	 * @return string
-	 */
-	public function getRequestingIp()
-	{
-		return isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
-	}
+    /**
+     * Filters out array values by using a custom filter
+     *
+     * @param array|string|null $values
+     * @param callable          $filter
+     * @param bool              $preserveKeys
+     *
+     * @return array
+     */
+    protected function filterOutArrayValues($values = null, callable $filter = null, $preserveKeys = false)
+    {
+        $data = [];
 
-	/**
-	 * Returns whether or not the current user has access during maintenance mode
-	 */
-	protected function doesCurrentUserHaveAccess()
-	{
-		// Admins have access by default
-		if (craft()->userSession->isAdmin())
-		{
-			return true;
-		}
+        if (is_array($values) && count($values))
+        {
+            foreach ($values as $key => $value)
+            {
+                $value = trim($value);
 
-		// User has the right permission
-		if (craft()->userSession->checkPermission('patrolMaintenanceModeBypass'))
-		{
-			return true;
-		}
+                if (! empty($value))
+                {
+                    if (is_callable($filter) && $filter($value))
+                    {
+                        $data[$key] = $value;
+                    }
+                }
+            }
 
-		return false;
-	}
+            if (! $preserveKeys)
+            {
+                $data = array_values($data);
+            }
+        }
 
-	/**
-	 * @throws HttpException
-	 */
-	protected function runDefaultBehavior()
-	{
-		throw new HttpException(403);
-	}
+        return $data;
+    }
+
+    /**
+     * @param string $redirectTo
+     *
+     * @throws HttpException
+     */
+    protected function forceRedirect($redirectTo = '')
+    {
+        if (empty($redirectTo))
+        {
+            $this->runDefaultBehavior();
+        }
+
+        craft()->request->redirect($redirectTo);
+    }
+
+    /**
+     * Ensures that we get the right IP address even if behind CloudFlare
+     *
+     * @return string
+     */
+    public function getRequestingIp()
+    {
+        return isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? $_SERVER['HTTP_CF_CONNECTING_IP'] : $_SERVER['REMOTE_ADDR'];
+    }
+
+    /**
+     * Returns whether or not the current user has access during maintenance mode
+     *
+     * @return bool
+     */
+    protected function doesCurrentUserHaveAccess()
+    {
+        $admin      = craft()->userSession->isAdmin();
+        $authorized = craft()->userSession->checkPermission('patrolMaintenanceModeBypass');
+
+        return ($admin || $authorized);
+    }
+
+    /**
+     * @throws HttpException
+     */
+    protected function runDefaultBehavior()
+    {
+        throw new HttpException(403);
+    }
 }

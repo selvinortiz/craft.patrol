@@ -1,101 +1,72 @@
-![Patrol](patrol/resources/img/patrol.png)
+![Patrol](resources/img/patrol.png)
 
-## Patrol 1.X
-Lovingly crafted *by* [Selvin Ortiz](https://selv.in) for [Craft CMS](http://buildwithcraft.com)
-
-Patrol simplifies **maintenance** and **SSL** for sites built with [Craft](http://buildwithcraft.com)
-
-<a href='https://pledgie.com/campaigns/27296'>
-<img alt='Support Craft Plugin Development By Selvin Ortiz' src='https://pledgie.com/campaigns/27296.png?skin_name=chrome' border='0'></a>
+## Patrol
+> Patrol simplifies **SSL** and **maintenance** routing for sites built with [Craft CMS](http://craftcms.com)
 
 ----
 ### Features
-- Put your site on maintenance mode quickly and easily
-- Force SSL globally or on specific pages with fine grain control
-- Uses IP based authentication to bypass maintenance mode
-- Allows IP based authentication even if behind *CloudFlare*
-- Allows logged in admins to bypass maintenance mode
-- Allows logged in users with proper permissions to bypass maintenance mode
-- Fully configurable via _environment configs_
+- Allows you to _force SSL_ on specific areas of your site or globally
+- Allows you to put your site on _maintenance mode_ and route traffic to your _offline page_
+- Allows you to define who can access your website during maintenance
+- Allows you to configure everything through the control panel or via _environment configs_
+
+> You can let users access your website during maintenance by:
+- Making them **admins**
+- Authorizing their **IP address**
+- Giving them this permission: `Patrol > Access the site when maintenance is on`
+
+> If you want to block all users, (including admins) during maintenance:
+- Add your email to `authorizedUsers` in your config file and login with that account
 
 ### Installation
-1. Download the [latest release](https://github.com/selvinortiz/craft.patrol/releases)
+1. Download the [latest release](https://github.com/selvinortiz/craft.releases)
 2. Extract the archive and place `patrol` inside your `craft/plugins` directory
 3. Adjust file permissions as necessary
 
-### Setup
-Patrol offers a pretty straight forward but fully featured UI to adjust settings as needed.  
-Additionally, you can fully configure Patrol via environment configs which will take priority.
-
-### Environment Driven Configuration
-You can configure Patrol and all of its settings from any environment definition. Here is an example of how you could go about setting that up...
-
+### Environment Configs
+> You can configure Patrol from any environment definition. Here is an example of how you could go about setting that up...
 
 ```php
 // config/general.php
-return array(
-	'*'	=> array(
-		'environmentVariables' => array()
-	),
-	'.dev'	=> array(
-		'patrol'				=> array(
-			'forceSsl'			=> false,
-		)
-	),
-	'.com' => array(
-		'patrol'				=> array(
-			'forceSsl'			=> true,
-			'restrictedAreas'	=> array(
-				'/{cpTrigger}',
-				'/members'
-			),
-			'maintenanceMode'	=> false,
-			'maintenanceUrl'	=> '/offline.html',
-			'authorizedIps'		=> array(
-				'127.0.0.1',
-			),
-			'enableCpTab'		=> false
-			'pluginAlias'		=> '',
-		)
-    )
-);
+return [
+    '*'    => [
+        'environmentVariables' => [],
+    ],
+    '.dev' => [
+        'patrol' => [
+            'forceSsl' => false,
+        ],
+    ],
+    '.com' => [
+        'patrol' => [
+            'primaryDomain'   => '*',
+            'forceSsl'        => true,
+            'restrictedAreas' => [
+                '/{cpTrigger}',
+                '/members',
+            ],
+            'maintenanceMode' => false,
+            'maintenanceUrl'  => '/offline.html',
+            'authorizedIps'   => [
+                '127.0.0.1',
+            ],
+            'authorizedUsers' => ['you@domain.com'],
+            'enableCpTab'     => true,
+            'pluginAlias'     => 'Patrol',
+        ],
+    ],
+];
 ```
 
 ### Notes
-- If no **maintenance URL** is set, Patrol will default to throwing a **403** HTTP error
-- The **Control Panel** is accessible by logged in admins if **maintenance mode** is **ON**
-- The **Control Panel** is accessible by users with proper permissions if **maintenance mode** is **ON**
+> Patrol will throw an `HttpException(403)` for unauthorized users during maintenance if you do not have an _offline page_ set up.
 
-### FAQ
-
-##### 1. How do I give users access when maintenance mode is ON?
-- You can add their **IP** to the list of _Authorized IPs_
-- You can give them permission (`Patrol > Access the site when maintenance is on`
-- Logged in users with **admin** privileges have full access by default
-
-##### 2. Will IP authentication work if my site is behind [CloudFlare](http://cloudflare.com)?
-- **Yes**, CloudFlare provides the **requesting IP** via a header that Patrol understands
-
-##### 3. Doesn't Craft have a maintenance mode setting?
-- **Yes**, but it's meant for internal use only to handle updates
-
-### SSL Rules FAQ
-Please note that these questions/answers only apply if you don't want to enable **SSL** everywhere for whatever reason.
-However, forcing SSL everywhere is now standard practice and it is what I would recommended you do.
-
-##### 1. How do I force secure connections on the Control Panel?
-- You can simply add the URL for it (/admin) or use `/{cpTrigger}` so that it works even if you change that setting later
-
-##### 2. How do I force secure connections on a specific URL, like my login page?
-- You can add something like `/members/login` to the _Restricted Areas_
-
-##### 3. How do I force secure connections on a specific section, like the members area?
-- You can add the section URL `/members` and URLs on that scope will be protected as well
+> To force SSL everywhere (recommended practice), you can set `/` as the restricted area. If you only want to force SSL on the control panel, you could use `/admin` or `/{cpTrigger}`, the latter is recommended.
 
 ### Help & Feedback
-If you have questions, comments, or concerns feel free to reach out to me on twitter [@selvinortiz](http://twitter.com/selvinortiz)
+If you have questions, comments, or suggestions, feel free to reach out to me on twitter [@selvinortiz](https://twitter.com/selvinortiz)
 
 ### License
-**Patrol** for _craft_ is open source software licensed under the [MIT License](http://opensource.org/licenses/MIT)
+**Patrol** for [Craft CMS](http://craftcms.com) is open source software, licensed under the [MIT License](http://opensource.org/licenses/MIT)
 
-![Open Source Initiative](patrol/resources/img/osilogo.png)
+![Open Source Initiative](resources/img/osilogo.png)
