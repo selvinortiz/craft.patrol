@@ -19,7 +19,7 @@
 - Add your email or username to `limitCpAccessTo` in your _config file_ and login with that account
 
 ### Installation
-1. Download the [latest release](https://github.com/selvinortiz/craft.releases)
+1. Download the [latest release](https://github.com/selvinortiz/craft.patrol/releases)
 2. Extract the archive and place `patrol` inside your `craft/plugins` directory
 3. Adjust file permissions as necessary
 
