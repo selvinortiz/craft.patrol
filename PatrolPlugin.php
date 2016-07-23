@@ -131,7 +131,7 @@ class PatrolPlugin extends BasePlugin
             'maintenanceMode' => [AttributeType::Bool],
             'maintenanceUrl'  => [AttributeType::String],
             'authorizedIps'   => [AttributeType::Mixed],
-            'authorizedUsers' => [AttributeType::Mixed],
+            'limitCpAccessTo' => [AttributeType::Mixed],
             'enableCpTab'     => [AttributeType::Bool],
             'pluginAlias'     => [AttributeType::String],
         ];

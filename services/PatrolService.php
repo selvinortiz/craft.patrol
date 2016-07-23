@@ -141,14 +141,18 @@ class PatrolService extends BaseApplicationComponent
         $isSiteRequest   = craft()->request->isSiteRequest();
         $isCpLoginPage   = mb_stripos(craft()->request->getRequestUri(), '/login');
         $maintenanceUrl  = $this->settings['maintenanceUrl'];
-        $authorizedUsers = $this->settings['authorizedUsers'];
+        $limitCpAccessTo = $this->settings['limitCpAccessTo'];
 
-        // @todo Gotta find a way to make this less ugly:)
-        if ($maintenance && $isCpRequest && is_array($authorizedUsers) && count($authorizedUsers) && ! $isCpLoginPage)
+        if ($isCpRequest && is_array($limitCpAccessTo) && count($limitCpAccessTo) && ! $isCpLoginPage)
         {
-            if (craft()->userSession->isLoggedIn() && in_array(craft()->userSession->getUser()->email, $authorizedUsers))
+            if (craft()->userSession->isLoggedIn())
             {
-                return;
+                $user = craft()->userSession->getUser();
+
+                if (in_array($user->email, $limitCpAccessTo) || in_array($user->username, $limitCpAccessTo))
+                {
+                    return;
+                }
             }
 
             $this->forceRedirect($maintenanceUrl);

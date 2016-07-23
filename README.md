@@ -3,12 +3,12 @@
 ## Patrol
 > Patrol simplifies **SSL** and **maintenance** routing for sites built with [Craft CMS](http://craftcms.com)
 
-----
 ### Features
 - Allows you to _force SSL_ on specific areas of your site or globally
 - Allows you to put your site on _maintenance mode_ and route traffic to your _offline page_
 - Allows you to define who can access your website during maintenance
-- Allows you to configure everything through the control panel or via _environment configs_
+- Allows you to enforce a primary domain (`primaryDomain environment config`)
+- Allows you to limit control panel access (`limitCpAccessTo environment config`)
 
 > You can let users access your website during maintenance by:
 - Making them **admins**
@@ -16,7 +16,7 @@
 - Giving them this permission: `Patrol > Access the site when maintenance is on`
 
 > If you want to block all users, (including admins) during maintenance:
-- Add your email to `authorizedUsers` in your config file and login with that account
+- Add your email or username to `limitCpAccessTo` in your _config file_ and login with that account
 
 ### Installation
 1. Download the [latest release](https://github.com/selvinortiz/craft.releases)
@@ -50,7 +50,7 @@ return [
             'authorizedIps'   => [
                 '127.0.0.1',
             ],
-            'authorizedUsers' => ['you@domain.com'],
+            'limitCpAccessTo' => ['you@domain.com'],
             'enableCpTab'     => true,
             'pluginAlias'     => 'Patrol',
         ],
