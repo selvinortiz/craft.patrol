@@ -7,7 +7,7 @@ namespace Craft;
  * Patrol simplifies maintenance and SSL for sites built with Craft
  *
  * @author   Selvin Ortiz <selvin@selvin.co>
- * @version  1.3.0
+ * @version  1.4.1
  * @package  Craft
  * @category Security
  * @since    Craft 1.3
@@ -18,7 +18,7 @@ namespace Craft;
  * @property bool   $maintenanceMode Whether maintenance mode is on (offline)
  * @property string $maintenanceUrl  The URL/template to redirect to when maintenance mode is on
  * @property array  $authorizedIps   The list of IP addresses that bypass maintenance mode
- * @property array  $authorizedUsers The list of ONLY authorized users when not empty
+ * @property array  $limitCpAccessTo The list of ONLY users that can access the CP when not empty
  * @property bool   $enableCpTab     Whether the Control Panel tab for Patrol is display
  * @property string $pluginAlias     The name that Patrol was renamed to by the user after installation
  */
@@ -68,7 +68,7 @@ class PatrolPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '1.4.0';
+        return '1.4.1';
     }
 
     /**
