@@ -1,5 +1,14 @@
 [
   {
+    "version": "1.4.2",
+    "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.4.2.zip",
+    "date": "2017-01-11T13:13:00-06:00",
+    "notes": [
+      "[Added] Added login (`/{cpTrigger}/login`) redirect when using `limitCpAccessTo`",
+      "[Fixed] Fixed issue where `authorizedIps` was not properly handled in some cases"
+    ]
+  },
+  {
     "version": "1.4.1",
     "downloadUrl": "https://github.com/selvinortiz/craft.patrol/archive/v1.4.1.zip",
     "date": "2016-07-22T13:13:00-06:00",

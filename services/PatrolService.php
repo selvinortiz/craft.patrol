@@ -145,8 +145,14 @@ class PatrolService extends BaseApplicationComponent
 
         if ($isCpRequest && is_array($limitCpAccessTo) && count($limitCpAccessTo) && ! $isCpLoginPage)
         {
-            if (craft()->userSession->isLoggedIn())
+            // Redirect to login page
+            if (! craft()->userSession->isLoggedIn())
             {
+                craft()->request->redirect(sprintf('/%s/login', craft()->config->get('cpTrigger')));
+            }
+            else
+            {
+                // Verify
                 $user = craft()->userSession->getUser();
 
                 if (in_array($user->email, $limitCpAccessTo) || in_array($user->username, $limitCpAccessTo))
@@ -250,11 +256,9 @@ class PatrolService extends BaseApplicationComponent
      */
     public function parseAuthorizedIps($ips)
     {
-        $ips = trim($ips);
-
-        if (is_string($ips) && ! empty($ips))
+        if (is_string($ips))
         {
-            $ips = explode(PHP_EOL, $ips);
+            $ips = explode(PHP_EOL, trim($ips));
         }
 
         return $this->filterOutArrayValues(
