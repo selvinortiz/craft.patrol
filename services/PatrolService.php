@@ -212,7 +212,7 @@ class PatrolService extends BaseApplicationComponent
      */
     protected function forceSsl()
     {
-        craft()->request->redirect('https://'.craft()->request->getServerName().craft()->request->getUrl());
+        craft()->request->redirect('https://'.craft()->request->getServerName().craft()->request->getUrl(), true, 301);
     }
 
     /**
@@ -220,7 +220,7 @@ class PatrolService extends BaseApplicationComponent
      */
     protected function revertSsl()
     {
-        craft()->request->redirect('http://'.craft()->request->getServerName().craft()->request->getUrl());
+        craft()->request->redirect('http://'.craft()->request->getServerName().craft()->request->getUrl(), true, 301);
     }
 
     /**
